@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bore-tmm</title>
+<style>
+:root{--bg:#fbfbfa;--fg:#1a1c1e;--mut:#5b6067;--line:#e2e4e7;--card:#fff;--accent:#1d4ed8;
+--codebg:#f4f5f7;--thbg:#f0f1f3;--mark:#fff8c4}
+@media (prefers-color-scheme:dark){:root{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa1a9;--line:#2b2f34;
+--card:#1b1e22;--accent:#7aa2f7;--codebg:#22262b;--thbg:#23272c;--mark:#4a411c}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa1a9;--line:#2b2f34;--card:#1b1e22;
+--accent:#7aa2f7;--codebg:#22262b;--thbg:#23272c;--mark:#4a411c}
+:root[data-theme=light]{--bg:#fbfbfa;--fg:#1a1c1e;--mut:#5b6067;--line:#e2e4e7;--card:#fff;
+--accent:#1d4ed8;--codebg:#f4f5f7;--thbg:#f0f1f3;--mark:#fff8c4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+font:16px/1.62 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+-webkit-text-size-adjust:100%}
+.wrap{display:grid;grid-template-columns:250px minmax(0,1fr);gap:44px;max-width:1180px;
+margin:0 auto;padding:40px 28px 96px}
+nav{position:sticky;top:28px;align-self:start;max-height:calc(100vh - 56px);overflow:auto;
+border-right:1px solid var(--line);padding-right:16px;font-size:13.5px;line-height:1.45}
+nav b{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);
+margin:0 0 12px}
+nav a{display:block;color:var(--mut);text-decoration:none;padding:3px 0;border-radius:4px}
+nav a:hover{color:var(--accent)}
+nav a.l1{color:var(--fg);font-weight:640;margin-top:11px}
+nav a.l2{padding-left:12px}
+main{min-width:0}
+h1{font-size:1.62rem;line-height:1.25;letter-spacing:-.015em;margin:2.4em 0 .5em;
+padding-bottom:.32em;border-bottom:2px solid var(--line)}
+main>h1:first-child{margin-top:0;border-bottom:none;font-size:1.95rem}
+h2{font-size:1.34rem;font-weight:680;margin:2.1em 0 .6em;letter-spacing:-.012em;
+padding:.1em 0 .1em .6em;border-left:4px solid var(--accent)}
+h3{font-size:1.02rem;font-weight:650;margin:1.7em 0 .45em}
+p{margin:.85em 0}
+ul,ol{margin:.85em 0;padding-left:1.35em}
+li{margin:.3em 0}
+/* A list with blank lines between its items is "loose", and pandoc wraps each item
+   in a <p> as GitHub does. These pages were set tight before pandoc, so they stay so. */
+li>p{margin:0}
+hr{border:0;border-top:1px solid var(--line);margin:2.6em 0}
+figure{margin:1.6em 0}
+/* A paragraph holding two or more images is a gallery. Left to inline layout they
+   wrap at whatever fits, which put three bells on one row and the fourth alone
+   underneath - directly above the caption, so it read as the caption for that one
+   picture rather than for the set. Flex lets them share the row instead. */
+p:has(img + img){display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;
+justify-content:center}
+p:has(img + img) img{flex:1 1 140px;min-width:0;width:auto;max-width:100%;height:auto;
+border:1px solid var(--line);border-radius:10px}
+figure svg,figure img{display:block;width:100%;max-width:100%;height:auto;
+border:1px solid var(--line);border-radius:10px}
+/* Any other image -- one inside a link, which is not a figure -- is held to the
+   column too. A cut-sheet preview linked to its cut file drew at its own size,
+   595mm wide, and ran off the page (square-flute, 2026-10-13). */
+img{max-width:100%;height:auto}
+a{color:var(--accent)}
+code{font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+background:var(--codebg);padding:.1em .32em;border-radius:4px;
+border:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+pre{background:var(--codebg);border:1px solid var(--line);border-radius:9px;
+padding:14px 16px;overflow-x:auto;margin:1.1em 0}
+pre code{background:none;border:0;padding:0;font-size:12.8px;line-height:1.62;white-space:pre}
+blockquote{margin:1.15em 0;padding:.7em 1.1em;border-left:4px solid var(--accent);
+background:var(--codebg);border-radius:0 7px 7px 0}
+blockquote p{margin:0}
+.tw{overflow-x:auto;margin:1.15em 0;border:1px solid var(--line);border-radius:9px;
+background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+/* honour align="center" on gallery cells: a presentation attribute loses to any
+   CSS rule, so the line above would silently left-align every thumbnail caption */
+td[align=center],th[align=center]{text-align:center}
+th{background:var(--thbg);font-weight:630;white-space:nowrap;font-size:13px;
+letter-spacing:.01em}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:color-mix(in srgb,var(--thbg) 45%,transparent)}
+td code,th code{white-space:nowrap}
+/* A walk inside a link is one token: breaking it mid-walk put "N" at the end of one
+   line and "N5 U" at the start of the next, which reads as two things. */
+a code{white-space:nowrap}
+.tog{position:fixed;top:14px;right:14px;z-index:9;background:var(--card);color:var(--mut);
+border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-size:12.5px;cursor:pointer}
+.tog:hover{color:var(--accent)}
+/* Below 900px the contents list moves to the top of the page, and the fixed theme
+   button sat on top of its first lines. There it scrolls away with the page instead,
+   in a strip of padding kept free for it; fixed, it would ride over the text as the
+   page scrolls, since a narrow screen has no margin for it to sit in. */
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:20px;padding:62px 18px 72px}
+.tog{position:absolute}
+nav{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);
+padding:0 0 16px;columns:2;column-gap:20px}}
+@media print{nav,.tog{display:none}.wrap{display:block;max-width:none;padding:0}
+pre,.tw{break-inside:avoid}h1{break-after:avoid}}
+</style>
+</head>
+<body>
+<button class="tog" type="button">theme</button>
+<div class="wrap">
+<nav><b>Contents</b><a class="l1" href="#bore-tmm">bore-tmm</a><a class="l2" href="#the-physics">The physics</a><a class="l2" href="#the-bore-file">The bore file</a><a class="l2" href="#agreement-with-the-python-models">Agreement with the Python models</a><a class="l2" href="#not-yet">Not yet</a><a class="l2" href="#files">Files</a></nav>
+<main>
+<h1 id="bore-tmm">bore-tmm</h1>
+<p><a href="https://gernreich.github.io">← All projects</a></p>
+<p>What a described bore plays. Describe a wind instrument's bore from its driven end down: its lengths of cylinder and cone, the tone holes along it, how it ends and what drives it. bore-tmm then gives each fingering's note, how far that note is from where it should be, and every register the fingering has.</p>
+<p>It is a transfer-matrix model, the same physics as the four Python models in the LaserMadeMusic repositories, gathered in one place:</p>
+<ul>
+<li><a href="https://github.com/Gernreich/square-flute/blob/main/naf_model.py">naf_model.py</a>, in square-flute</li>
+<li><a href="https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.py">flute_model.py</a>, in octagonal-flute</li>
+<li><a href="https://github.com/Gernreich/practice-chanters/blob/main/chanter_model.py">chanter_model.py</a>, in practice-chanters</li>
+<li><a href="https://github.com/Gernreich/ghb-chanter/blob/main/ghb_chanter.py">ghb_chanter.py</a>, in ghb-chanter</li>
+</ul>
+<p>Each of those models designs its instrument by solving where the holes go. bore-tmm does not design anything. It answers the question a cut file has to answer: given this bore, what does it play?</p>
+<pre><code>cargo build --release
+./target/release/bore-tmm check --compare bores/models/*.json   # against the designing models
+./target/release/bore-tmm check --tol=5 BORE.json                # fail any note &gt; 5 cents out
+./target/release/bore-tmm registers BORE.json                    # each fingering&#39;s resonances
+./target/release/bore-tmm curve BORE.json D4 --to=2000           # |Z| at the drive, CSV</code></pre>
+<h2 id="the-physics">The physics</h2>
+<ul>
+<li><strong>Bore</strong>: a lossy tube with Benade's wall loss, 3.0e-5 √f / r per metre, taken on a loss radius. Each segment gives the loss radius as <code>loss_ratio</code> times its equivalent radius. That ratio is 1 for a round bore and √(π / (n tan(π/n))) for a regular n-gon.</li>
+<li><strong>Segments</strong>: plane waves in a cylinder, spherical waves in a cone. A segment is described by equivalent diameters, which give the round bore of the same area.</li>
+<li><strong>Holes</strong>: Keefe's (1990) tone hole, open or closed. Its chimney is the wall it goes through, and it is described by the round hole of its area, whatever its shape.</li>
+<li><strong>End</strong>: <code>unflanged</code> (0.25 (ka)², 0.6133 ka), <code>flanged</code> (0.5 (ka)², 0.8216 ka) or <code>closed</code>.</li>
+<li><strong>Drive</strong>:
+<ul>
+<li><code>reed</code>: a cane reed, or lips. The bore sounds where Im(Y) rises through zero. With <code>apex</code>, the first cone carries on above the top to its apex, closed there, which stands in for a conical bore's missing tip.</li>
+<li><code>jet</code>: a flute. The window or embouchure is a neck flanged at both ends, in series with the bore, with the stub to the plug or cork in parallel. The bore sounds where the reactance rises through zero.</li>
+</ul></li>
+</ul>
+<h2 id="the-bore-file">The bore file</h2>
+<pre class="json"><code>{
+ &quot;name&quot;: &quot;...&quot;, &quot;temp_c&quot;: 25,
+ &quot;drive&quot;: {&quot;kind&quot;: &quot;jet&quot;, &quot;area_mm2&quot;: 75.6, &quot;chimney_mm&quot;: 6, &quot;mouth&quot;: 1, &quot;stub_mm&quot;: 20},
+ &quot;bore&quot;: [{&quot;len_mm&quot;: 511.9, &quot;d_mm&quot;: 19.5, &quot;loss_ratio&quot;: 0.974}],
+ &quot;end&quot;: &quot;unflanged&quot;,
+ &quot;holes&quot;: [{&quot;name&quot;: &quot;R3&quot;, &quot;at_mm&quot;: 404.0, &quot;d_mm&quot;: 5.52, &quot;chimney_mm&quot;: 3}],
+ &quot;notes&quot;: [{&quot;name&quot;: &quot;E4&quot;, &quot;hz&quot;: 329.63, &quot;open&quot;: [&quot;R3&quot;]}]
+}</code></pre>
+<p>Positions are in mm down the bore from its driven end. A cone segment takes <code>d1_mm</code> and <code>d2_mm</code> in place of <code>d_mm</code>. A hole with <code>always_open</code> is a vent. A note can carry <code>span</code> (how far either side of <code>hz</code> to look) and <code>model_hz</code> (what the designing model says it plays).</p>
+<h2 id="agreement-with-the-python-models">Agreement with the Python models</h2>
+<p><code>tools/export_models.py</code> writes each model's own design to <code>bores/models/</code>, with that model's prediction for every note. <code>check --compare</code> then reads:</p>
+<pre><code>MODEL MATCH: 49 notes, worst 0.00000 cents from the designing model</code></pre>
+<p>That covers seven bores: the octagonal flute, the four square-flute builds, the octagonal practice chanter and the GHB chanter. bore-tmm checks all seven in milliseconds, where the Python models took seconds.</p>
+<p><code>cargo test</code> checks the engine against textbook results: a reed on a cylinder is a quarter wave, a reed on a whole cone is a half wave, and a cone with no taper is a cylinder.</p>
+<p><strong>One difference between the models.</strong> The GHB chanter's model takes the cone's loss radius as its diameter / 4, half its radius. The other three take the radius itself. The GHB export keeps <code>loss_ratio: 0.5</code> so the two engines match. Set to 1, every note moves 3 to 6 cents flat. Because the GHB model only compares the strip chanter with the reference in the same model, the effect on its hole sizes should be smaller than that, but it has not been measured.</p>
+<h2 id="not-yet">Not yet</h2>
+<ul>
+<li><strong>Bores read from the cut files.</strong> The bores here are the models'. That is what each generator was asked for, not what it drew. The real check is to read the bore back from each generator's own geometry, so a drift between the model and the cut file fails a gate.</li>
+<li><strong>A gate</strong> in <code>lasermade-tools/all-gates.sh</code>: <code>check --tol</code> over every instrument's bore, ending in <code>TUNING OK</code>.</li>
+<li><strong>Uilleann chanter and the trumpets</strong>, which have no model yet. The uilleann chanter needs its tapered square bore. The trumpets need a lip drive, a mouthpiece, the bell's flare as cone segments, and a decision on whether bends matter at these bore sizes.</li>
+<li><strong>Measurement</strong>: a speaker, a microphone and a capillary to measure a built bore's impedance, so the uncalibrated parts (the flute's window and the reed's correction) can be fitted to something real. <code>curve</code> already writes the curve to compare against.</li>
+</ul>
+<h2 id="files">Files</h2>
+<ul>
+<li><code>Cargo.toml</code>, <code>Cargo.lock</code>: the crate and its pinned dependencies (serde, serde_json).</li>
+<li><code>src/lib.rs</code>: the engine. <code>src/main.rs</code>: the command line.</li>
+<li><code>tests/physics.rs</code>: the textbook checks.</li>
+<li><code>tools/export_models.py</code>: writes the designing models' bores.</li>
+<li><code>bores/models/</code>: those bores, one file each: <code>octagonal-flute.json</code>, <code>square-flute-box-square-3.json</code>, <code>square-flute-box-square-6.json</code>, <code>square-flute-stack-rect-3.json</code>, <code>square-flute-stack-rect-6.json</code>, <code>practice-chanter-8.json</code> and <code>ghb-chanter.json</code>.</li>
+<li><code>.doc-audit-ignore</code>: the sibling repositories' files this page names.</li>
+<li><code>LICENSE</code>: CC0.</li>
+</ul>
+</main>
+</div>
+<script>
+var r=document.documentElement,b=document.querySelector('.tog');
+function set(t){r.setAttribute('data-theme',t);try{localStorage.setItem('ctg-theme',t)}catch(e){}
+b.textContent=t==='dark'?'\u2600 light':'\u263e dark';}
+var saved=null;try{saved=localStorage.getItem('ctg-theme')}catch(e){}
+set(saved||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+b.addEventListener('click',function(){set(r.getAttribute('data-theme')==='dark'?'light':'dark')});
+</script>
+</body>
+</html>

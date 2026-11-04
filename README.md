@@ -6,10 +6,10 @@ What a described bore plays. Describe a wind instrument's bore from its driven e
 
 It is a transfer-matrix model, the same physics as the four Python models in the LaserMadeMusic repositories, gathered in one place:
 
-- `square-flute/naf_model.py`
-- `octagonal-flute/flute_model.py`
-- `practice-chanters/chanter_model.py`
-- `ghb-chanter/ghb_chanter.py`
+- [naf_model.py](https://github.com/Gernreich/square-flute/blob/main/naf_model.py), in square-flute
+- [flute_model.py](https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.py), in octagonal-flute
+- [chanter_model.py](https://github.com/Gernreich/practice-chanters/blob/main/chanter_model.py), in practice-chanters
+- [ghb_chanter.py](https://github.com/Gernreich/ghb-chanter/blob/main/ghb_chanter.py), in ghb-chanter
 
 Each of those models designs its instrument by solving where the holes go. bore-tmm does not design anything. It answers the question a cut file has to answer: given this bore, what does it play?
 
@@ -58,7 +58,7 @@ That covers seven bores: the octagonal flute, the four square-flute builds, the 
 
 `cargo test` checks the engine against textbook results: a reed on a cylinder is a quarter wave, a reed on a whole cone is a half wave, and a cone with no taper is a cylinder.
 
-**One difference between the models.** `ghb_chanter.py` takes the cone's loss radius as its diameter / 4, half its radius. The other three take the radius itself. The GHB export keeps `loss_ratio: 0.5` so the two engines match. Set to 1, every note moves 3 to 6 cents flat. Because the GHB model only compares the strip chanter with the reference in the same model, the effect on its hole sizes should be smaller than that, but it has not been measured.
+**One difference between the models.** The GHB chanter's model takes the cone's loss radius as its diameter / 4, half its radius. The other three take the radius itself. The GHB export keeps `loss_ratio: 0.5` so the two engines match. Set to 1, every note moves 3 to 6 cents flat. Because the GHB model only compares the strip chanter with the reference in the same model, the effect on its hole sizes should be smaller than that, but it has not been measured.
 
 ## Not yet
 
@@ -66,3 +66,13 @@ That covers seven bores: the octagonal flute, the four square-flute builds, the 
 - **A gate** in `lasermade-tools/all-gates.sh`: `check --tol` over every instrument's bore, ending in `TUNING OK`.
 - **Uilleann chanter and the trumpets**, which have no model yet. The uilleann chanter needs its tapered square bore. The trumpets need a lip drive, a mouthpiece, the bell's flare as cone segments, and a decision on whether bends matter at these bore sizes.
 - **Measurement**: a speaker, a microphone and a capillary to measure a built bore's impedance, so the uncalibrated parts (the flute's window and the reed's correction) can be fitted to something real. `curve` already writes the curve to compare against.
+
+## Files
+
+- `Cargo.toml`, `Cargo.lock`: the crate and its pinned dependencies (serde, serde_json).
+- `src/lib.rs`: the engine. `src/main.rs`: the command line.
+- `tests/physics.rs`: the textbook checks.
+- `tools/export_models.py`: writes the designing models' bores.
+- `bores/models/`: those bores, one file each: `octagonal-flute.json`, `square-flute-box-square-3.json`, `square-flute-box-square-6.json`, `square-flute-stack-rect-3.json`, `square-flute-stack-rect-6.json`, `practice-chanter-8.json` and `ghb-chanter.json`.
+- `.doc-audit-ignore`: the sibling repositories' files this page names.
+- `LICENSE`: CC0.
