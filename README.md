@@ -157,4 +157,5 @@ Everything is read into a temporary directory. When a generator changes on purpo
 - `tools/read_cut_files.py`: the bores as drawn. `tools/svgparts.py`: the shapes in a cut file. `tools/export_models.py`: the designing models' own bores.
 - `bores/cut/`, `bores/predict/`, `bores/models/`: what those write. `bores/rig/reference-cavity.json`: the rig's reference.
 - `.doc-audit-ignore`, `.doc-audit-generated`: the sibling repositories' files this page names, and the generated folders.
+- `index.html`: this page, built from `README.md` by lasermade-tools' md2html.py.
 - `LICENSE`: CC0.
