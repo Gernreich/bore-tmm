@@ -1,0 +1,116 @@
+{
+ "name": "square-bore flute box-square-3, naf_model.py design (laid out for the hands)",
+ "source": "square-flute/naf_model.py design(even=True)",
+ "temp_c": 25.0,
+ "drive": {
+  "kind": "jet",
+  "area_mm2": 118.17836050912528,
+  "chimney_mm": 3.0,
+  "mouth": 1.0,
+  "stub_mm": 3.5
+ },
+ "bore": [
+  {
+   "len_mm": 354.28490968209644,
+   "d_mm": 19.05,
+   "loss_ratio": 0.886226925452758
+  }
+ ],
+ "end": "unflanged",
+ "holes": [
+  {
+   "name": "h1",
+   "at_mm": 260.2322232417455,
+   "d_mm": 7.092821046406698,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "h2",
+   "at_mm": 235.2322232417455,
+   "d_mm": 8.0,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "h3",
+   "at_mm": 210.2322232417455,
+   "d_mm": 9.91830377044107,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "h4",
+   "at_mm": 159.36579997895228,
+   "d_mm": 8.0,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "h5",
+   "at_mm": 134.36579997895228,
+   "d_mm": 6.444874286341928,
+   "chimney_mm": 3.0
+  }
+ ],
+ "notes": [
+  {
+   "name": "A4",
+   "hz": 440.0,
+   "open": [],
+   "span": 1.4,
+   "model_hz": 439.99999998969315
+  },
+  {
+   "name": "C5",
+   "hz": 523.2511306011972,
+   "open": [
+    "h1"
+   ],
+   "span": 1.4,
+   "model_hz": 523.2511305864316
+  },
+  {
+   "name": "D5",
+   "hz": 587.3295358348151,
+   "open": [
+    "h1",
+    "h2"
+   ],
+   "span": 1.4,
+   "model_hz": 587.3295358293219
+  },
+  {
+   "name": "E5",
+   "hz": 659.2551138257398,
+   "open": [
+    "h1",
+    "h2",
+    "h3"
+   ],
+   "span": 1.4,
+   "model_hz": 659.2551138258796
+  },
+  {
+   "name": "G5",
+   "hz": 783.9908719634985,
+   "open": [
+    "h1",
+    "h2",
+    "h3",
+    "h4"
+   ],
+   "span": 1.4,
+   "model_hz": 783.9908719636645
+  },
+  {
+   "name": "A5",
+   "hz": 880.0,
+   "open": [
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5"
+   ],
+   "span": 1.4,
+   "model_hz": 880.0000000000284
+  }
+ ]
+}
