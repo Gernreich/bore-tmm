@@ -162,4 +162,4 @@ Everything is read into a temporary directory. When a generator changes on purpo
 
 ## Credits
 
-Written by Michael Gernreich with [Claude](https://claude.ai) (Anthropic's Claude Opus 5.5, in Claude Code), which wrote the engine, the readers and this page; every commit it made carries a `Co-Authored-By: Claude` line.
+Written by Michael Gernreich with [Claude](https://www.anthropic.com/claude) (Anthropic's Claude Opus 5.5, in Claude Code), which wrote the engine, the readers and this page; every commit it made carries a `Co-Authored-By: Claude` line.
