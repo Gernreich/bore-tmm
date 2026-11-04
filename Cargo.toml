@@ -2,6 +2,7 @@
 name = "bore-tmm"
 version = "0.1.0"
 edition = "2021"
+authors = ["Michael Gernreich", "Claude (Anthropic) <noreply@anthropic.com>"]
 description = "Transfer-matrix model of a wind instrument's bore: what a described bore plays, note by note"
 license = "CC0-1.0"
 

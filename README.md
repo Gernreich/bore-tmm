@@ -159,3 +159,7 @@ Everything is read into a temporary directory. When a generator changes on purpo
 - `.doc-audit-ignore`, `.doc-audit-generated`: the sibling repositories' files this page names, and the generated folders.
 - `index.html`: this page, built from `README.md` by lasermade-tools' md2html.py.
 - `LICENSE`: CC0.
+
+## Credits
+
+Written by Michael Gernreich with [Claude](https://claude.ai) (Anthropic's Claude Opus 5.5, in Claude Code), which wrote the engine, the readers and this page; every commit it made carries a `Co-Authored-By: Claude` line.
