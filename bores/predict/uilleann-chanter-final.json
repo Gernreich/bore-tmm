@@ -1,0 +1,146 @@
+{
+ "name": "uilleann chanter, Fischer's square bore, holes final",
+ "source": "uilleann-chanter/uilleann_chanter.py build(): hole places, Fischer's final sizes, strip depths; the throat and the square cone from its constants; the reed allowance fitted to low D (59.3mm, on the holes as cut)",
+ "drive": {
+  "kind": "reed"
+ },
+ "bore": [
+  {
+   "len_mm": 59.3,
+   "d_mm": 5.159375
+  },
+  {
+   "len_mm": 42.0,
+   "d_mm": 5.159375
+  },
+  {
+   "len_mm": 323.0,
+   "d1_mm": 5.187761863843781,
+   "d2_mm": 12.976360421598395,
+   "loss_ratio": 0.8862269254527579
+  }
+ ],
+ "end": "unflanged",
+ "holes": [
+  {
+   "name": "D'",
+   "at_mm": 122.5,
+   "d_mm": 7.14375,
+   "chimney_mm": 6.0
+  },
+  {
+   "name": "C#",
+   "at_mm": 140.0,
+   "d_mm": 5.5562499999999995,
+   "chimney_mm": 9.0
+  },
+  {
+   "name": "B",
+   "at_mm": 169.0,
+   "d_mm": 5.5562499999999995,
+   "chimney_mm": 9.0
+  },
+  {
+   "name": "A",
+   "at_mm": 202.0,
+   "d_mm": 7.14375,
+   "chimney_mm": 9.0
+  },
+  {
+   "name": "G",
+   "at_mm": 242.0,
+   "d_mm": 4.365625,
+   "chimney_mm": 9.0
+  },
+  {
+   "name": "F#",
+   "at_mm": 272.0,
+   "d_mm": 7.14375,
+   "chimney_mm": 9.0
+  },
+  {
+   "name": "E",
+   "at_mm": 305.0,
+   "d_mm": 4.365625,
+   "chimney_mm": 9.0
+  },
+  {
+   "name": "Eb",
+   "at_mm": 336.0,
+   "d_mm": 7.14375,
+   "chimney_mm": 9.0
+  }
+ ],
+ "notes": [
+  {
+   "name": "D4",
+   "hz": 293.6647679174076,
+   "open": [],
+   "span": 1.3
+  },
+  {
+   "name": "Eb4",
+   "hz": 311.1269837220809,
+   "open": [
+    "Eb"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "E4",
+   "hz": 329.62755691287,
+   "open": [
+    "E"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "F#4",
+   "hz": 369.9944227116344,
+   "open": [
+    "F#"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "G4",
+   "hz": 391.9954359817493,
+   "open": [
+    "G"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "A4",
+   "hz": 440.0,
+   "open": [
+    "A"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "B4",
+   "hz": 493.8833012561241,
+   "open": [
+    "B"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "C#5",
+   "hz": 554.3652619537442,
+   "open": [
+    "C#"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "D5",
+   "hz": 587.3295358348151,
+   "open": [
+    "D'"
+   ],
+   "span": 1.3
+  }
+ ]
+}

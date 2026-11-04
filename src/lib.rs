@@ -15,6 +15,8 @@
 //! answers what a described bore plays, which is the question a cut file
 //! has to answer.
 
+pub mod measure;
+
 use serde::Deserialize;
 use std::f64::consts::PI;
 use std::ops::{Add, Div, Mul, Neg, Sub};
@@ -224,6 +226,11 @@ pub struct Note {
     /// what the model that designed the bore says it plays, if it said
     #[serde(default)]
     pub model_hz: Option<f64>,
+    /// this note's own tolerance, in place of check's --tol, and why
+    #[serde(default)]
+    pub tol_cents: Option<f64>,
+    #[serde(default)]
+    pub tol_why: Option<String>,
     /// look near here instead of hz: a note whose target is not where the
     /// bore's resonance is, as when the target is the reference's pitch
     #[serde(default)]
@@ -276,6 +283,10 @@ pub struct Instrument {
     /// where the description came from: a generator, a model, a measurement
     #[serde(default)]
     pub source: Option<String>,
+    /// what the notes' hz are, when not the scale itself: a reference
+    /// chanter's notes in the same model, say
+    #[serde(default)]
+    pub targets: Option<String>,
 }
 
 fn warm() -> f64 {

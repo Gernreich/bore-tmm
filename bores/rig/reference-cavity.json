@@ -1,0 +1,8 @@
+{
+ "name": "rig reference: a closed cavity, 19mm across and 20mm deep",
+ "source": "the measuring rig's reference, README 'Measuring a bore': its first resonance is near 8.6kHz, above any sweep here, so its impedance is smooth across the band",
+ "drive": {"kind": "reed"},
+ "bore": [{"len_mm": 20.0, "d_mm": 19.0}],
+ "end": "closed",
+ "notes": []
+}

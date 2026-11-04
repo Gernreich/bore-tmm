@@ -1,0 +1,4 @@
+# written by tools/read_cut_files.py and tools/export_models.py, documented by folder in README.md
+bores/cut
+bores/predict
+bores/models

@@ -1,0 +1,129 @@
+{
+ "name": "octagonal flute in D, as cut",
+ "source": "octagonal-flute/cut-files/octagonal-flute-D4-sheet1-cut-files.svg: embouchure, holes, cork and foot lines measured, kerf 0.13; section, wall, lip cover and mouth from flute_model.py",
+ "temp_c": 25.0,
+ "drive": {
+  "kind": "jet",
+  "area_mm2": 55.06610607129304,
+  "chimney_mm": 6.0,
+  "mouth": 1.0,
+  "stub_mm": 19.999999999999996
+ },
+ "bore": [
+  {
+   "len_mm": 511.90799999999996,
+   "d_mm": 19.513528876963125,
+   "loss_ratio": 0.9736834439223662
+  }
+ ],
+ "end": "unflanged",
+ "holes": [
+  {
+   "name": "R3",
+   "at_mm": 404.039,
+   "d_mm": 5.519485557239506,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "R2",
+   "at_mm": 370.039,
+   "d_mm": 9.196237403098722,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "R1",
+   "at_mm": 336.03900000000004,
+   "d_mm": 5.637111469602714,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "L3",
+   "at_mm": 286.792,
+   "d_mm": 6.756222090305439,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "L2",
+   "at_mm": 252.79199999999997,
+   "d_mm": 8.291116430838535,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "L1",
+   "at_mm": 218.79199999999997,
+   "d_mm": 9.196329734544726,
+   "chimney_mm": 3.0
+  }
+ ],
+ "notes": [
+  {
+   "name": "D4",
+   "hz": 293.6647679174076,
+   "open": [],
+   "span": 1.4
+  },
+  {
+   "name": "E4",
+   "hz": 329.62755691287,
+   "open": [
+    "R3"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "F#4",
+   "hz": 369.9944227116344,
+   "open": [
+    "R3",
+    "R2"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "G4",
+   "hz": 391.9954359817493,
+   "open": [
+    "R3",
+    "R2",
+    "R1"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "A4",
+   "hz": 440.0,
+   "open": [
+    "R3",
+    "R2",
+    "R1",
+    "L3"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "B4",
+   "hz": 493.8833012561241,
+   "open": [
+    "R3",
+    "R2",
+    "R1",
+    "L3",
+    "L2"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "C#5",
+   "hz": 554.3652619537442,
+   "open": [
+    "R3",
+    "R2",
+    "R1",
+    "L3",
+    "L2",
+    "L1"
+   ],
+   "span": 1.4
+  }
+ ]
+}

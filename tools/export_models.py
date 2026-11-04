@@ -4,6 +4,7 @@ says every note plays (model_hz), so `bore-tmm check --compare` can show the
 Rust engine and the Python models are the same physics.
 
     python3 tools/export_models.py            # writes bores/models/*.json
+    python3 tools/export_models.py --out=DIR    # writes them there instead
 
 It imports the models from the sibling repositories, read-only:
 square-flute/naf_model.py, octagonal-flute/flute_model.py,
@@ -92,8 +93,12 @@ def practice_chanter():
     for n in P.BUILT:
         b, L, pos, widths = M.design(n)
         a = 1000 * b.a
-        write(f'practice-chanter-{n}', {
-            'name': f'practice chanter, {n} sides, chanter_model.py design',
+        # NOT the chanter practice_chanters.py builds: since 2026-10-23 that is
+        # solved in standard_chanter.py's model against a measured reference
+        # (bores/cut/ has it as drawn). This is chanter_model.py's own design,
+        # kept because it is the model's, and strip_chanter.py still uses it.
+        write(f'chanter-model-{n}-sided', {
+            'name': f'chanter_model.py\'s own design at {n} sides (not the chanter built)',
             'source': f'practice-chanters/chanter_model.py design({n})',
             'temp_c': M.T_C,
             'drive': {'kind': 'reed'},
@@ -135,6 +140,11 @@ def ghb_chanter():
 
 
 if __name__ == '__main__':
+    for x in sys.argv[1:]:
+        if x.startswith('--out='):
+            OUT = os.path.abspath(x.split('=', 1)[1])
+        else:
+            raise SystemExit(f'error: {x} is not a flag this reads. It takes --out=DIR.')
     octagonal_flute()
     square_flute()
     practice_chanter()

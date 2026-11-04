@@ -1,0 +1,152 @@
+{
+ "name": "practice chanter, standard octagon, as drawn",
+ "source": "practice-chanters/standard_octagon.py build(): strip slots and the sole; section, wall, reed allowance and the reference's notes from standard_chanter.py's model",
+ "temp_c": 25.0,
+ "drive": {
+  "kind": "reed"
+ },
+ "bore": [
+  {
+   "len_mm": 371.73865559723345,
+   "d_mm": 8.45212848118777,
+   "loss_ratio": 0.9465071452481952
+  }
+ ],
+ "end": "unflanged",
+ "holes": [
+  {
+   "name": "hA",
+   "at_mm": 161.07,
+   "d_mm": 4.7310195386092255,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "G",
+   "at_mm": 173.07,
+   "d_mm": 4.836077508975805,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "F",
+   "at_mm": 193.47,
+   "d_mm": 5.174915134057894,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "E",
+   "at_mm": 218.48,
+   "d_mm": 5.942164763934063,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "D",
+   "at_mm": 243.48000000000002,
+   "d_mm": 5.551169646866365,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "C",
+   "at_mm": 268.48,
+   "d_mm": 5.285021326783691,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "B",
+   "at_mm": 293.48,
+   "d_mm": 4.979440515396761,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "A",
+   "at_mm": 325.48,
+   "d_mm": 4.859563419027542,
+   "chimney_mm": 3.0
+  }
+ ],
+ "targets": "the measured reference chanter's notes in the same model",
+ "notes": [
+  {
+   "name": "low G",
+   "hz": 230.1693116854389,
+   "open": [],
+   "span": 1.3
+  },
+  {
+   "name": "low A",
+   "hz": 254.91893577526196,
+   "open": [
+    "A"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "B",
+   "hz": 282.5918617171519,
+   "open": [
+    "B",
+    "A"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "C",
+   "hz": 309.55124322327964,
+   "open": [
+    "C",
+    "B"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "D",
+   "hz": 341.4756265259931,
+   "open": [
+    "D",
+    "C",
+    "B"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "E",
+   "hz": 376.4932413561538,
+   "open": [
+    "E",
+    "A"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "F",
+   "hz": 423.4843277301615,
+   "open": [
+    "F",
+    "E",
+    "A"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "high G",
+   "hz": 469.4754041082906,
+   "open": [
+    "G",
+    "F",
+    "E",
+    "A"
+   ],
+   "span": 1.3
+  },
+  {
+   "name": "high A",
+   "hz": 504.56477961166615,
+   "open": [
+    "hA",
+    "G",
+    "F",
+    "A"
+   ],
+   "span": 1.3
+  }
+ ]
+}
