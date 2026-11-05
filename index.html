@@ -159,7 +159,7 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
 <p><strong>What the comparison found:</strong></p>
 <ul>
 <li><strong>The plate chanter is no longer <code>chanter_model.py</code>'s design.</strong> Since 2026-10-23 <code>practice_chanters.py</code> has solved it in <code>standard_chanter.py</code>'s model, against a measured reference chanter. The export of <code>chanter_model.py</code>'s own 8-sided design is kept, renamed <code>chanter-model-8-sided</code>, because <code>strip_chanter.py</code> still uses that model. <code>bores/cut/</code> has the chanter that is actually cut.</li>
-<li><strong>The GHB chanter's loss radius is half the others'.</strong> <code>ghb_chanter.py</code> takes the cone's diameter / 4, half its radius; the other models take the radius. The GHB files keep <code>loss_ratio: 0.5</code> so the engines match. Set to 1, every note moves 3 to 6 cents flat. Its model only compares the strip chanter with the reference in the same model, so the effect on the hole sizes should be smaller than that, but it has not been measured.</li>
+<li><strong>The GHB chanter's loss radius</strong> was half the others' (the cone's diameter / 4) until 2026-11-05, when <code>ghb_chanter.py</code> was corrected to the radius. That moved the model's reference notes 2.7 to 6.0 cents flat, but the solved hole sizes by at most 0.017mm and the vents by 0.053mm, less than the kerf.</li>
 </ul>
 <h2 id="predictions">Predictions</h2>
 <p><code>bores/predict/</code> holds the bores whose pitch is the open question rather than the check, so the tuning gate does not judge them.</p>

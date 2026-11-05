@@ -1,6 +1,6 @@
 {
  "name": "GHB chanter, 8-sided strips, as drawn",
- "source": "ghb-chanter/ghb_chanter.py build() at 8 sides: strip holes, side holes and the sole; the cone, its loss radius (diameter / 4) and the reference's notes from its model",
+ "source": "ghb-chanter/ghb_chanter.py build() at 8 sides: strip holes, side holes and the sole; the cone, its loss radius (the radius) and the reference's notes from its model",
  "temp_c": 25.0,
  "drive": {
   "kind": "reed",
@@ -11,7 +11,7 @@
    "len_mm": 345.0,
    "d1_mm": 3.463,
    "d2_mm": 21.168400000000002,
-   "loss_ratio": 0.5
+   "loss_ratio": 1.0
   }
  ],
  "end": "unflanged",
@@ -19,62 +19,62 @@
   {
    "name": "hA",
    "at_mm": 64.3,
-   "d_mm": 5.312282902296823,
+   "d_mm": 5.312307275107591,
    "chimney_mm": 3.0
   },
   {
    "name": "G",
    "at_mm": 79.6,
-   "d_mm": 5.349005266501191,
+   "d_mm": 5.348699742732104,
    "chimney_mm": 3.0
   },
   {
    "name": "F",
    "at_mm": 104.1,
-   "d_mm": 6.807185092010753,
+   "d_mm": 6.8059493427614175,
    "chimney_mm": 3.0
   },
   {
    "name": "E",
    "at_mm": 128.57,
-   "d_mm": 8.14452820869021,
+   "d_mm": 8.142049341500227,
    "chimney_mm": 3.0
   },
   {
    "name": "D",
    "at_mm": 153.05,
-   "d_mm": 8.713541736428477,
+   "d_mm": 8.707064526046267,
    "chimney_mm": 3.0
   },
   {
    "name": "C",
    "at_mm": 175.3,
-   "d_mm": 9.606714687030308,
+   "d_mm": 9.597618881959763,
    "chimney_mm": 3.0
   },
   {
    "name": "B",
    "at_mm": 203.63,
-   "d_mm": 9.850011564623228,
+   "d_mm": 9.836504488139472,
    "chimney_mm": 3.0
   },
   {
    "name": "A",
    "at_mm": 234.23,
-   "d_mm": 9.963683194853783,
+   "d_mm": 9.946825544500754,
    "chimney_mm": 3.0
   },
   {
    "name": "vent1",
    "at_mm": 286.2,
-   "d_mm": 13.942102742954708,
+   "d_mm": 13.889154827658274,
    "chimney_mm": 3.0,
    "always_open": true
   },
   {
    "name": "vent2",
    "at_mm": 286.2,
-   "d_mm": 13.942102742954708,
+   "d_mm": 13.889154827658274,
    "chimney_mm": 3.0,
    "always_open": true
   }
@@ -82,13 +82,13 @@
  "notes": [
   {
    "name": "low G",
-   "hz": 470.6265741455087,
+   "hz": 469.0088751349597,
    "open": [],
    "span": 1.25
   },
   {
    "name": "low A",
-   "hz": 535.6906418110527,
+   "hz": 533.9970206681012,
    "open": [
     "A"
    ],
@@ -96,7 +96,7 @@
   },
   {
    "name": "B",
-   "hz": 601.5335589019098,
+   "hz": 599.7890841986292,
    "open": [
     "B",
     "A"
@@ -105,7 +105,7 @@
   },
   {
    "name": "C",
-   "hz": 676.1138220062437,
+   "hz": 674.3311390505582,
    "open": [
     "C",
     "B"
@@ -114,7 +114,7 @@
   },
   {
    "name": "D",
-   "hz": 747.0077079478792,
+   "hz": 745.2124896392554,
    "open": [
     "D",
     "C",
@@ -124,7 +124,7 @@
   },
   {
    "name": "E",
-   "hz": 829.9377088367171,
+   "hz": 828.1043031768781,
    "open": [
     "E",
     "A"
@@ -133,7 +133,7 @@
   },
   {
    "name": "F",
-   "hz": 959.6245278933934,
+   "hz": 957.8284435071695,
    "open": [
     "F",
     "E",
@@ -143,7 +143,7 @@
   },
   {
    "name": "high G",
-   "hz": 1112.660611454763,
+   "hz": 1110.8391741257087,
    "open": [
     "G",
     "F",
@@ -154,7 +154,7 @@
   },
   {
    "name": "high A",
-   "hz": 1253.034714069467,
+   "hz": 1251.0800988507945,
    "open": [
     "hA",
     "G",

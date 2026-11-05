@@ -78,7 +78,7 @@ MODEL MATCH: 49 notes, worst 0.00000 cents from the designing model
 **What the comparison found:**
 
 - **The plate chanter is no longer `chanter_model.py`'s design.** Since 2026-10-23 `practice_chanters.py` has solved it in `standard_chanter.py`'s model, against a measured reference chanter. The export of `chanter_model.py`'s own 8-sided design is kept, renamed `chanter-model-8-sided`, because `strip_chanter.py` still uses that model. `bores/cut/` has the chanter that is actually cut.
-- **The GHB chanter's loss radius is half the others'.** `ghb_chanter.py` takes the cone's diameter / 4, half its radius; the other models take the radius. The GHB files keep `loss_ratio: 0.5` so the engines match. Set to 1, every note moves 3 to 6 cents flat. Its model only compares the strip chanter with the reference in the same model, so the effect on the hole sizes should be smaller than that, but it has not been measured.
+- **The GHB chanter's loss radius** was half the others' (the cone's diameter / 4) until 2026-11-05, when `ghb_chanter.py` was corrected to the radius. That moved the model's reference notes 2.7 to 6.0 cents flat, but the solved hole sizes by at most 0.017mm and the vents by 0.053mm, less than the kerf.
 
 ## Predictions
 

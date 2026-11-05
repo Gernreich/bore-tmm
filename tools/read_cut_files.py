@@ -353,11 +353,11 @@ def ghb_chanters():
         write(f'ghb-chanter-{n}-sided', {
             'name': f'GHB chanter, {n}-sided strips, as drawn',
             'source': (f'ghb-chanter/ghb_chanter.py build() at {n} sides: strip holes, side holes '
-                       f'and the sole; the cone, its loss radius (diameter / 4) and the '
+                       f'and the sole; the cone, its loss radius (the radius) and the '
                        f'reference\'s notes from its model'),
             'temp_c': M.T_C,
             'drive': {'kind': 'reed', 'apex': True},
-            'bore': [{'len_mm': sole, 'd1_mm': d0, 'd2_mm': d0 + slope * sole, 'loss_ratio': 0.5}],
+            'bore': [{'len_mm': sole, 'd1_mm': d0, 'd2_mm': d0 + slope * sole, 'loss_ratio': 1.0}],
             'end': 'unflanged',
             'holes': [{'name': h, 'at_mm': z, 'd_mm': d, 'chimney_mm': M.PLATE} for h, z, d in holes]
                      + [{'name': f'vent{i + 1}', 'at_mm': v[0], 'd_mm': v[1], 'chimney_mm': M.PLATE,

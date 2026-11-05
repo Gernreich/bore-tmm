@@ -125,10 +125,8 @@ def ghb_chanter():
         'source': 'ghb-chanter/ghb_chanter.py solve(); hz = the reference chanter in the same model',
         'temp_c': M.T_C,
         'drive': {'kind': 'reed', 'apex': True},
-        # ghb_chanter.py takes the loss radius as the cone's diameter / 4, half
-        # its radius, where the other models take the radius itself
         'bore': [{'len_mm': G.REF_SOLE, 'd1_mm': d0, 'd2_mm': d0 + slope * G.REF_SOLE,
-                  'loss_ratio': 0.5}],
+                  'loss_ratio': 1.0}],
         'end': 'unflanged',
         'holes': [{'name': h, 'at_mm': z, 'd_mm': d, 'chimney_mm': t}
                   for h, z, d, t in holes.values()]
