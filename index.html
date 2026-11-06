@@ -102,14 +102,15 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <nav><b>Contents</b><a class="l1" href="#bore-tmm">bore-tmm</a><a class="l2" href="#the-physics">The physics</a><a class="l2" href="#the-bore-file">The bore file</a><a class="l2" href="#what-the-drawings-play">What the drawings play</a><a class="l2" href="#agreement-with-the-python-models">Agreement with the Python models</a><a class="l2" href="#predictions">Predictions</a><a class="l2" href="#measuring-a-bore">Measuring a bore</a><a class="l2" href="#the-gate">The gate</a><a class="l2" href="#files">Files</a><a class="l2" href="#credits">Credits</a></nav>
 <main>
 <h1 id="bore-tmm">bore-tmm</h1>
-<p><a href="https://gernreich.github.io">← All projects</a></p>
+<p><strong><a href="https://gernreich.github.io/" target="_blank" rel="noopener">← All projects</a></strong></p>
+<p><strong><a href="https://github.com/Gernreich/bore-tmm" target="_blank" rel="noopener">Read the README</a></strong></p>
 <p>What a described bore plays. Describe a wind instrument's bore from its driven end down: its lengths of cylinder and cone, the tone holes along it, how it ends and what drives it. bore-tmm then gives each fingering's note, how far that note is from where it should be, and every register the fingering has.</p>
 <p>It is a transfer-matrix model in Rust. The instrument repositories each carry their own copy of the same physics, in Python, to design their instruments:</p>
 <ul>
-<li><a href="https://github.com/Gernreich/square-flute/blob/main/naf_model.py">naf_model.py</a>, in square-flute</li>
-<li><a href="https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.py">flute_model.py</a>, in octagonal-flute</li>
-<li><a href="https://github.com/Gernreich/practice-chanters/blob/main/chanter_model.py">chanter_model.py</a> and <a href="https://github.com/Gernreich/practice-chanters/blob/main/standard_chanter.py">standard_chanter.py</a>, in practice-chanters</li>
-<li><a href="https://github.com/Gernreich/ghb-chanter/blob/main/ghb_chanter.py">ghb_chanter.py</a>, in ghb-chanter</li>
+<li><a href="https://github.com/Gernreich/square-flute/blob/main/naf_model.py" target="_blank" rel="noopener">naf_model.py</a>, in square-flute</li>
+<li><a href="https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.py" target="_blank" rel="noopener">flute_model.py</a>, in octagonal-flute</li>
+<li><a href="https://github.com/Gernreich/practice-chanters/blob/main/chanter_model.py" target="_blank" rel="noopener">chanter_model.py</a> and <a href="https://github.com/Gernreich/practice-chanters/blob/main/standard_chanter.py" target="_blank" rel="noopener">standard_chanter.py</a>, in practice-chanters</li>
+<li><a href="https://github.com/Gernreich/ghb-chanter/blob/main/ghb_chanter.py" target="_blank" rel="noopener">ghb_chanter.py</a>, in ghb-chanter</li>
 </ul>
 <p>bore-tmm does not design anything. It answers the question a cut file has to answer: given this bore, what does it play? It reads each instrument's bore back out of what its generator draws, checks the tuning in a gate, and has the tools to measure a built bore and fit the model's uncalibrated parts to it.</p>
 <pre><code>cargo build --release
@@ -146,7 +147,7 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
 <h2 id="what-the-drawings-play">What the drawings play</h2>
 <p><code>tools/read_cut_files.py</code> reads every instrument's bore from what its generator draws, and writes them to <code>bores/cut/</code>:</p>
 <ul>
-<li><strong>The flutes are read off their SVGs.</strong> The octagonal flute's top wall carries the embouchure, the six holes, and two engraved lines for the cork's face and the foot. The square flutes' top plate carries the window and five holes, and the foot is the plate's end less the 15mm cut long to trim. Each hole's size is its cut shape plus the kerf the file says it was drawn for.</li>
+<li><strong>The flutes are read off their SVGs.</strong> The octagonal flute's top wall carries the embouchure, the six holes, and two engraved lines for the cork's face and the foot. The square flutes' top plate carries the window and five holes, and the foot is the plate's end less the 15 mm cut long to trim. Each hole's size is its cut shape plus the kerf the file says it was drawn for.</li>
 <li><strong>The chanters are read off the parts their sheets are drawn from</strong>, because a sheet cannot give a chanter's bore. The plate chanter's 131 plates are packed by size, not in stack order, and a strip's holes do not say which end is the reed's. The repositories' <code>.repro</code> gates hold those parts equal to the committed SVGs.</li>
 </ul>
 <p>What no part carries comes from the generator, and each reader says so in the file's <code>source</code>: the bore's section, the ply, the reed allowance, and the scale.</p>
@@ -159,11 +160,11 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
 <p><strong>What the comparison found:</strong></p>
 <ul>
 <li><strong>The plate chanter is no longer <code>chanter_model.py</code>'s design.</strong> Since 2026-10-23 <code>practice_chanters.py</code> has solved it in <code>standard_chanter.py</code>'s model, against a measured reference chanter. The export of <code>chanter_model.py</code>'s own 8-sided design is kept, renamed <code>chanter-model-8-sided</code>, because <code>strip_chanter.py</code> still uses that model. <code>bores/cut/</code> has the chanter that is actually cut.</li>
-<li><strong>The GHB chanter's loss radius</strong> was half the others' (the cone's diameter / 4) until 2026-11-05, when <code>ghb_chanter.py</code> was corrected to the radius. That moved the model's reference notes 2.7 to 6.0 cents flat, but the solved hole sizes by at most 0.017mm and the vents by 0.053mm, less than the kerf.</li>
+<li><strong>The GHB chanter's loss radius</strong> was half the others' (the cone's diameter / 4) until 2026-11-05, when <code>ghb_chanter.py</code> was corrected to the radius. That moved the model's reference notes 2.7 to 6.0 cents flat, but the solved hole sizes by at most 0.017 mm and the vents by 0.053 mm, less than the kerf.</li>
 </ul>
 <h2 id="predictions">Predictions</h2>
 <p><code>bores/predict/</code> holds the bores whose pitch is the open question rather than the check, so the tuning gate does not judge them.</p>
-<p><strong>The three-turn trumpet</strong> is the 24-ring legacy mouthpiece, 1096mm of 10mm square bore (the length <code>bore_split.py</code> reports for its walk), and the 17-ring bell. Every ring is a short cylinder of its aperture's area, read off the cut files. Its one measured note is F4, 349.2 Hz, and with nothing calibrated the model has a resonance at <strong>350.1 Hz, 4.6 cents away</strong>:</p>
+<p><strong>The three-turn trumpet</strong> is the 24-ring legacy mouthpiece, 1096 mm of 10 mm square bore (the length <code>bore_split.py</code> reports for its walk), and the 17-ring bell. Every ring is a short cylinder of its aperture's area, read off the cut files. Its one measured note is F4, 349.2 Hz, and with nothing calibrated the model has a resonance at <strong>350.1 Hz, 4.6 cents away</strong>:</p>
 <pre><code>three-turn trumpet, as built: no holes; the bore&#39;s resonances, 40 to 1500Hz
      71.0Hz  C#2 +43c
     212.3Hz  G#3 +38c
@@ -172,8 +173,8 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
     595.1Hz  D5 +23c
     705.4Hz  F5 +17c</code></pre>
 <p>The three-turn writeup says F4 "lands on no simple mode" of the tube and puts that down to the bell and the mouthpiece. The model agrees. It is one note, so this is evidence, not proof.</p>
-<p>The model does not include the bore's 16 turns, where a lattice corner grows the section by up to 41% for one 16mm block. Taken as +21% (the mean) the note moves −0.2 cents; taken as the full +41%, −11.7 cents. The measured note falls between the two. With the shipped 30-ring mouthpiece the same bore would sound at 352.1 Hz.</p>
-<p><strong>The swept-curve spiral</strong> has been blown, but its note is not reported. It is 1000mm of the same bore with the same bell. Which mouthpiece it carries is not recorded, so the shipped one is assumed. The model's resonances are 77.4, 231.4, <strong>380.2</strong> (F#4 +47c), 510.7, 611.7 and 724.2 Hz. One note measured off it would test this prediction.</p>
+<p>The model does not include the bore's 16 turns, where a lattice corner grows the section by up to 41% for one 16 mm block. Taken as +21% (the mean) the note moves −0.2 cents; taken as the full +41%, −11.7 cents. The measured note falls between the two. With the shipped 30-ring mouthpiece the same bore would sound at 352.1 Hz.</p>
+<p><strong>The swept-curve spiral</strong> has been blown, but its note is not reported. It is 1000 mm of the same bore with the same bell. Which mouthpiece it carries is not recorded, so the shipped one is assumed. The model's resonances are 77.4, 231.4, <strong>380.2</strong> (F#4 +47c), 510.7, 611.7 and 724.2 Hz. One note measured off it would test this prediction.</p>
 <p><strong>The uilleann chanter</strong> is read from <code>uilleann_chanter.py</code>'s parts: Fischer's square cone under a round throat, and his eight holes at their drilled sizes (<code>-as-cut</code>) and his final sizes (<code>-final</code>). The reed allowance is fitted so that low D sounds with every hole closed. <strong>The model does not give it a playable scale.</strong> With a cylinder reed the lowest notes come out sharp and the top ones flat, and D5 is 300 cents out. With the cone carried to its apex every hole plays about a minor third sharp. The suspects, in order:</p>
 <ol type="1">
 <li>the fingering, taken as each note opening only its own hole;</li>
@@ -189,9 +190,9 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
 <p>The fit is least squares in cents over the notes given, scanned and then narrowed. It prints each note's residue, the part one number cannot explain, and it fails if the answer sits at the end of <code>--range</code>. <code>--set</code> takes any number in the file: <code>bore.0.len_mm</code> for a reed allowance, <code>holes.3.d_mm</code> for one hole.</p>
 <p><strong>The bore alone, with a rig.</strong> A played note mixes the bore with the player. The rig measures the bore with no player:</p>
 <ul>
-<li><strong>Source</strong>: a small loudspeaker sealed in a box, which feeds the bore's input through a <strong>capillary</strong>. Use a blunted 0.5mm-bore needle about 50mm long: about 6×10⁸ Pa·s/m³ of flow resistance, seven times the trumpet's highest impedance peak and far above any flute's or chanter's. Through it the flow barely depends on the bore, so the pressure at the input is the bore's impedance times a constant.</li>
+<li><strong>Source</strong>: a small loudspeaker sealed in a box, which feeds the bore's input through a <strong>capillary</strong>. Use a blunted 0.5mm-bore needle about 50 mm long: about 6×10⁸ Pa·s/m³ of flow resistance, seven times the trumpet's highest impedance peak and far above any flute's or chanter's. Through it the flow barely depends on the bore, so the pressure at the input is the bore's impedance times a constant.</li>
 <li><strong>Microphone</strong>: an electret capsule set flush in the wall at the input plane, into any audio interface.</li>
-<li><strong>Reference</strong>: a closed cavity 19mm across and 20mm deep, <code>bores/rig/reference-cavity.json</code>, measured the same way. Its first resonance is near 8.6kHz, so across the band its impedance is smooth and known. Dividing by it removes the loudspeaker, the microphone and the room.</li>
+<li><strong>Reference</strong>: a closed cavity 19 mm across and 20 mm deep, <code>bores/rig/reference-cavity.json</code>, measured the same way. Its first resonance is near 8.6kHz, so across the band its impedance is smooth and known. Dividing by it removes the loudspeaker, the microphone and the room.</li>
 </ul>
 <pre><code>$B sweep sweep.wav --to=3000                 # play this, record the microphone
 $B analyse cavity.wav --to=3000              # the reference, for a look
@@ -203,7 +204,7 @@ $B compare bores/cut/octagonal-flute.json E4 flute-E4.wav --to=3000 \
 <ul>
 <li><code>cargo test</code>: the textbook checks and the rig's analysis.</li>
 <li><strong>The bores read now are the bores committed</strong> in <code>bores/cut/</code> and <code>bores/predict/</code>. A generator that moves a hole shows up as a diff even before it goes out of tune.</li>
-<li><strong>Every drawn bore is in tune</strong>, <code>TUNING OK</code>, within 5 cents or its stated tolerance. Moving one octagonal-flute hole by 3mm fails it at −7.9 cents.</li>
+<li><strong>Every drawn bore is in tune</strong>, <code>TUNING OK</code>, within 5 cents or its stated tolerance. Moving one octagonal-flute hole by 3 mm fails it at −7.9 cents.</li>
 <li><strong>The engine agrees with every designing model</strong>, <code>MODEL MATCH</code>, to 0.01 cents.</li>
 </ul>
 <p>Everything is read into a temporary directory. When a generator changes on purpose, rerun <code>python3 tools/read_cut_files.py</code> and commit the bores with the change.</p>
@@ -219,7 +220,7 @@ $B compare bores/cut/octagonal-flute.json E4 flute-E4.wav --to=3000 \
 <li><code>LICENSE</code>: CC0.</li>
 </ul>
 <h2 id="credits">Credits</h2>
-<p>Written by Michael Gernreich with <a href="https://www.anthropic.com/claude">Claude</a> (Anthropic's Claude Opus 5.5, in Claude Code), which wrote the engine, the readers and this page; every commit it made carries a <code>Co-Authored-By: Claude</code> line.</p>
+<p>Written by Michael Gernreich with <a href="https://www.anthropic.com/claude" target="_blank" rel="noopener">Claude</a> (Anthropic's Claude Opus 5.5, in Claude Code), which wrote the engine, the readers and this page; every commit it made carries a <code>Co-Authored-By: Claude</code> line.</p>
 </main>
 </div>
 <script>
