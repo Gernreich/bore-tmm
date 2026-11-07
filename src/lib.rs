@@ -6,9 +6,9 @@
 //! peaks, where Im(Y) rises through zero) or a JET (a flute's: the bore sounds
 //! where the reactance the jet drives rises through zero).
 //!
-//! The physics is the four Python models' in the LaserMadeMusic repositories
+//! The physics is the four design models' in the LaserMadeMusic repositories
 //! (square-flute/naf_model.py, octagonal-flute/flute_model.py,
-//! practice-chanters/chanter_model.py, ghb-chanter/ghb_chanter.py), in one
+//! practice-chanters/chanter_model.rs, ghb-chanter/ghb_chanter.rs), in one
 //! place: Benade's wall loss on a loss radius, plane waves in a cylinder,
 //! spherical waves in a cone, Keefe's (1990) tone hole, a flanged or
 //! unflanged open end. Those models DESIGN an instrument; this one only

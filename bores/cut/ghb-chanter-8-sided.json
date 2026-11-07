@@ -1,6 +1,6 @@
 {
  "name": "GHB chanter, 8-sided strips, as drawn",
- "source": "ghb-chanter/ghb_chanter.py build() at 8 sides: strip holes, side holes and the sole; the cone, its loss radius (the radius) and the reference's notes from its model",
+ "source": "ghb-chanter/ghb_chanter.rs build() at 8 sides: strip holes, side holes and the sole; the cone, its loss radius (the radius) and the reference's notes from its model",
  "temp_c": 25.0,
  "drive": {
   "kind": "reed",

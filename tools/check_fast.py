@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Does src/models.rs still give the same bits as the five Python models?
+"""Does src/models.rs still give the same bits as the two Python flute models?
 
     python3 tools/check_fast.py          # after cargo build --release
 
@@ -10,10 +10,14 @@ design's notes and then the same with every hole moved and resized at
 random, at other spans, and the cases that find no resonance and must raise
 the same error. A mismatch anywhere fails, naming the model and the call.
 
+The three chanter models were compared here too until 2026-11-07, when they
+moved to Rust and call src/models.rs directly: no Python is left to compare
+them with. Their generators' cut files came out byte for byte the same.
+
 It fails, too, when the library is not there to test: a gate that quietly
 compared Python with itself would pass for ever. The last line is
 
-    FAST MATCH: n soundings in 5 models, bit for bit
+    FAST MATCH: n soundings in 2 models, bit for bit
 
 or FAST MISMATCH with a count, and the exit status is 1 on any failure.
 """
@@ -24,14 +28,11 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GIT = os.path.normpath(os.path.join(HERE, '..', '..'))
-for repo in ('practice-chanters', 'ghb-chanter', 'square-flute', 'octagonal-flute'):
+for repo in ('square-flute', 'octagonal-flute'):
     sys.path.insert(0, os.path.join(GIT, repo))
 
-import chanter_model as CM                                       # noqa: E402
 import flute_model as FM                                         # noqa: E402
-import ghb_chanter as G                                          # noqa: E402
 import naf_model as NM                                           # noqa: E402
-import standard_chanter as S                                     # noqa: E402
 import tmm_fast                                                  # noqa: E402
 
 
@@ -54,38 +55,6 @@ def same(model, what, pure, rust):
 
 def jiggle(rnd, xs, d):
     return [x + rnd.uniform(-d, d) for x in xs]
-
-
-def chanters(rnd):
-    for n in (3, 4, 6, 8):
-        b, L, pos, widths = CM.design(n)
-        for trial in range(3):
-            p = dict(pos) if not trial else {h: x + rnd.uniform(-4, 4) for h, x in pos.items()}
-            w = dict(widths) if not trial else {h: x * rnd.uniform(0.7, 1.3) for h, x in widths.items()}
-            for nt in CM.NOTES:
-                for span in (1.3, 2.2):
-                    near = CM.target(nt) * (rnd.uniform(0.9, 1.1) if trial else 1)
-                    same('chanter_model', f'{n} sides {nt} span {span}',
-                         lambda: CM._sounding(b, L, p, w, nt, near, span),
-                         lambda: CM._sounding_rust(b, L, p, w, nt, near, span))
-    b = S.Bore(S.REF_BORE)
-    ref = [(h, S.REF_TOP - z, d, wall) for h, (z, d, wall) in S.REF_HOLES.items()]
-    for trial in range(4):
-        hs = ref if not trial else [(h, z + rnd.uniform(-3, 3), d * rnd.uniform(0.8, 1.2), wall)
-                                    for h, z, d, wall in ref]
-        for nt in S.M.NOTES:
-            near = 255.0 * rnd.uniform(0.85, 2.1)
-            same('standard_chanter', f'trial {trial} {nt}',
-                 lambda: S._sounding(b, S.REF_TOP, hs, nt, near),
-                 lambda: S._sounding_rust(b, S.REF_TOP, hs, nt, near))
-    ref = G.ref_holes()
-    for trial in range(4):
-        hs = ref if not trial else [(h, z + rnd.uniform(-2, 2), d * rnd.uniform(0.85, 1.15), wall)
-                                    for h, z, d, wall in ref]
-        for nt in G.M.NOTES:
-            near = 480.0 * rnd.uniform(0.85, 2.0)
-            same('ghb_chanter', f'trial {trial} {nt}',
-                 lambda: G._sounding(hs, nt, near), lambda: G._sounding_rust(hs, nt, near))
 
 
 def flutes(rnd):
@@ -121,12 +90,11 @@ def main():
               '(or BORE_TMM_PURE is set)')
         return 1
     rnd = random.Random(20261107)
-    chanters(rnd)
     flutes(rnd)
     for line in bad[:10]:
         print('  ' + line)
     n = sum(counts.values())
-    if len(counts) != 5 or min(counts.values()) < 20:
+    if len(counts) != 2 or min(counts.values()) < 20:
         print(f'FAST MISMATCH: compared too little: {counts}')
         return 1
     if bad:

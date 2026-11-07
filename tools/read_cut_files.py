@@ -198,174 +198,31 @@ def square_flutes():
 # packed on the sheet by size, not in stack order, and a strip's holes do not say
 # which end is the reed's. So the chanters are read from the PARTS the generator
 # draws its sheet from -- each part's place down the body, each hole's cut -- which
-# the repository's .repro gate holds equal to the committed SVG. Sizes are the
-# parts' own, before the kerf the sheet writer adds.
+# the repository's .repro gate holds equal to the committed SVG. The generators are
+# Rust since 2026-11-07 and read their own parts: practice-chanters'
+# chanter_bores and `ghb_chanter --bores` print each chanter's bore as this
+# writes it (bores.rs and bores() there say how); this runs them, built.
 
-def cut_d(c):
-    """A part's hole cut, ('circle', x, y, r) or ('poly', pts): its round
-    equivalent, and where it is along the part."""
-    if c[0] == 'circle':
-        return c[1], 2 * c[3]
-    pts = c[1]
-    xs = [q[0] for q in pts]
-    return (min(xs) + max(xs)) / 2, S.eq_d(S.Shape(None, pts, True).area)
-
-
-def strip_holes(parts, top, names):
-    """(name, mm down the bore, round equivalent) of every hole cut in a strip,
-    named down the bore by the model's order of the holes. top is the bore's
-    top in the parts' coordinates."""
-    found = []
-    for p in parts:
-        if getattr(p, 'kind', None) != 'strip':
-            continue
-        for c in p.cuts:
-            x, d = cut_d(c)
-            found.append((p.x + x - top, d, p.name))
-    return found
-
-
-def standard_family(name, title, src, b, L, holes, ref, chimney, top_note, whole_plates=False):
-    """A chanter solved in standard_chanter.py's model: REF_REED of closed bore
-    of the chanter's own section, an unflanged sole."""
-    import standard_chanter as SC
-    import chanter_model as M
-    write(name, {
-        'name': title,
-        'source': src + ('; section, wall, reed allowance and the reference\'s notes '
-                         'from standard_chanter.py\'s model'),
-        'temp_c': M.T_C,
-        'drive': {'kind': 'reed'},
-        'bore': [{'len_mm': SC.REF_REED + L, 'd_mm': 2000 * b.a, 'loss_ratio': b.rh / b.a}],
-        'end': 'unflanged',
-        'holes': [{'name': h, 'at_mm': SC.REF_REED + z, 'd_mm': d, 'chimney_mm': chimney}
-                  for h, z, d in holes],
-        'targets': top_note,
-        'notes': [dict({'name': nt, 'hz': ref[nt], 'open': list(M.FINGERING[nt]), 'span': 1.3},
-                       **(LOW_G_PLATES if whole_plates and nt == 'low G' else {}))
-                  for nt in M.NOTES],
-    })
-
-
-# low G has no hole of its own: on a plate stack the bore is a whole number of
-# plates, and practice_chanters.py checks it is the NEAREST whole number, which
-# leaves low G up to half a plate out, about 7 cents at 3mm
-LOW_G_PLATES = {'tol_cents': 10.0,
-                'tol_why': 'the bore is whole plates, the nearest; low G has no hole to tune it'}
-
-
-def by_place(found, order, what):
-    """Name strip holes by the model's order down the bore."""
-    if len(found) != len(order):
-        raise Unreadable(f'{what}: {len(found)} holes cut in the strips, not {len(order)}')
-    found = sorted(found)
-    return [(h, z, d) for h, (z, d, _) in zip(order, found)]
+def rust(repo, exe, *args):
+    """A chanter generator's JSON on stdout, the generator built."""
+    import subprocess
+    path = os.path.join(GIT, repo, 'target', 'release', exe)
+    if not os.path.exists(path):
+        raise Unreadable(f'{rel(path)} is not built: cargo build --release in {repo}')
+    r = subprocess.run([path, *args], capture_output=True, text=True)
+    if r.returncode:
+        raise Unreadable(f'{rel(path)} {" ".join(args)}: {(r.stdout + r.stderr).strip()}')
+    return json.loads(r.stdout)
 
 
 def practice_chanters():
-    use('practice-chanters')
-    import chanter_model as M
-    import practice_chanters as P
-    import standard_chanter as SC
-    import standard_octagon as SO
-    import strip_chanter as STR
-    # down the bore from the seat, the holes are in the reverse of M.HOLES
-    down = list(reversed(M.HOLES))
-    ref = SC.reference()
-    targets = 'the measured reference chanter\'s notes in the same model'
-
-    # the standard strip chanter: square, round holes in the strips
-    parts, info = SC.build()
-    holes = by_place(strip_holes(parts, info['seat_bottom'], down), down, 'standard_chanter.py')
-    sole = max(p.x for p in parts if p.kind == 'strip') + info['Ls'] - info['seat_bottom']
-    standard_family('practice-chanter-standard-strips', 'practice chanter, standard strips (square bore), as drawn',
-                    'practice-chanters/standard_chanter.py build(): strip holes and the sole',
-                    SC.Bore(SC.SIDE, square=True), sole, holes, ref, M.PLATE, targets)
-
-    # the standard octagon: slots, cut as stadiums in the front and back strips
-    parts, info = SO.build()
-    holes = by_place(strip_holes(parts, info['seat_bottom'], down), down, 'standard_octagon.py')
-    sole = max(p.x for p in parts if p.kind == 'strip') + info['Ls'] - info['seat_bottom']
-    standard_family('practice-chanter-standard-octagon', 'practice chanter, standard octagon, as drawn',
-                    'practice-chanters/standard_octagon.py build(): strip slots and the sole',
-                    info['b'], sole, holes, ref, M.PLATE, targets)
-
-    # the plate chanter: every plate's place in the stack, the hole plates'
-    # slots or drills
-    for n in P.BUILT:
-        parts, info = P.build(n)
-        seat = P.N_SEAT * M.PLATE
-        body = [p for p in parts if p.kind in ('bore', 'slot', 'drill')]
-        sole = max(p.x for p in body) + M.PLATE - seat
-        holes = []
-        for p in sorted((p for p in body if p.kind != 'bore'), key=lambda p: p.x):
-            d = p.drill if p.kind == 'drill' else S.eq_d(p.width * M.PLATE)
-            holes.append((p.finger, p.x + M.PLATE / 2 - seat, d))
-        if [h for h, _, _ in holes] != down:
-            raise Unreadable(f'practice_chanters.py {n} sides: hole plates {[h for h, _, _ in holes]}')
-        b = info['b']
-        wall = P.OUTER_FLATS / 2 - M.inradius(P.bore_area(), n)
-        standard_family(f'practice-chanter-{n}-sided', f'practice chanter, {n}-sided plate stack, as drawn',
-                        f'practice-chanters/practice_chanters.py build({n}): every plate\'s place, '
-                        f'the hole plates\' slots and drills', b, sole, holes, ref, wall, targets,
-                        whole_plates=True)
-
-    # the strip chanter: chanter_model.py's own design, a round top over the strips
-    parts, info = STR.build()
-    t = M.PLATE
-    top = info['x0'] - info['n_round'] * t
-    holes = by_place(strip_holes(parts, top, down), down, 'strip_chanter.py')
-    b = info['b']
-    sole = info['x0'] + info['Ls'] - top
-    write('practice-chanter-strips', {
-        'name': 'practice chanter, square strips under a round top, as drawn',
-        'source': ('practice-chanters/strip_chanter.py build(): round top, strip holes and the '
-                   'sole; section and reed allowance from chanter_model.py'),
-        'temp_c': M.T_C,
-        'drive': {'kind': 'reed'},
-        'bore': [{'len_mm': M.REED + info['n_round'] * t, 'd_mm': info['round_d'], 'loss_ratio': 1.0},
-                 {'len_mm': sole - info['n_round'] * t, 'd_mm': 2000 * b.a, 'loss_ratio': b.rh / b.a}],
-        'end': 'flanged',
-        'holes': [{'name': h, 'at_mm': M.REED + z, 'd_mm': d, 'chimney_mm': b.wall}
-                  for h, z, d in holes],
-        'notes': [{'name': nt, 'hz': M.target(nt), 'open': list(M.FINGERING[nt]), 'span': 1.3}
-                  for nt in M.NOTES],
-    })
+    for name, d in rust('practice-chanters', 'chanter_bores')['cut'].items():
+        write(name, d)
 
 
 def ghb_chanters():
-    use('ghb-chanter')
-    import ghb_chanter as G
-    M = G.M
-    ref = G.reference()
-    down = sorted(G.REF_HOLES, key=lambda h: G.REF_HOLES[h][0])
-    d0, slope = G.REF_CONE
-    for n in (4, 6, 8):
-        G.SIDES = n
-        parts, info = G.build()
-        found = strip_holes(parts, 0.0, down)
-        vents = [f for f in found if abs(f[0] - G.REF_VENT[0]) < 1.0]
-        fingers = [f for f in found if f not in vents]
-        if len(vents) != 2:
-            raise Unreadable(f'ghb_chanter.py {n} sides: {len(vents)} side holes, not 2')
-        holes = by_place(fingers, down, f'ghb_chanter.py {n} sides')
-        sole = max(p.x for p in parts if p.kind == 'strip') + info['Ls']
-        write(f'ghb-chanter-{n}-sided', {
-            'name': f'GHB chanter, {n}-sided strips, as drawn',
-            'source': (f'ghb-chanter/ghb_chanter.py build() at {n} sides: strip holes, side holes '
-                       f'and the sole; the cone, its loss radius (the radius) and the '
-                       f'reference\'s notes from its model'),
-            'temp_c': M.T_C,
-            'drive': {'kind': 'reed', 'apex': True},
-            'bore': [{'len_mm': sole, 'd1_mm': d0, 'd2_mm': d0 + slope * sole, 'loss_ratio': 1.0}],
-            'end': 'unflanged',
-            'holes': [{'name': h, 'at_mm': z, 'd_mm': d, 'chimney_mm': M.PLATE} for h, z, d in holes]
-                     + [{'name': f'vent{i + 1}', 'at_mm': v[0], 'd_mm': v[1], 'chimney_mm': M.PLATE,
-                         'always_open': True} for i, v in enumerate(vents)],
-            'notes': [{'name': nt, 'hz': ref[nt], 'open': list(M.FINGERING[nt]), 'span': 1.25}
-                      for nt in M.NOTES],
-        })
-    G.SIDES = 4
+    for name, d in rust('ghb-chanter', 'ghb_chanter', '--bores')['cut'].items():
+        write(name, d)
 
 
 # --- the trumpets -------------------------------------------------------------------
@@ -469,7 +326,7 @@ def trumpets():
 # --- the uilleann chanter --------------------------------------------------------------
 #
 # Fischer's square cone under a round throat, his eight holes where the lid and
-# back strips cut them. Nothing in uilleann_chanter.py is modelled, and his
+# back strips cut them. Nothing in uilleann_chanter.rs is modelled, and his
 # holes are DRILLED SMALL, to be opened toward his final sizes by ear, so the
 # chanter as cut should play flat; the second file has his final sizes. Not
 # modelled either: his four dishes, the bore enlargements under the lid, each
@@ -492,37 +349,26 @@ BORE_TMM = os.path.normpath(os.path.join(HERE, '..', 'target', 'release', 'bore-
 def uilleann():
     import subprocess
     import tempfile
-    use('uilleann-chanter')
-    import uilleann_chanter as U
-    parts, info = U.build()
-    x0 = info['x0']
-    strips = {p.name: p for p in parts if p.kind == 'strip'}
-    chimney = {'back': U.BACK_LAYERS * info['t'], 'lid': U.LID_LAYERS * info['t']}
-    found = []
-    for name, p in strips.items():
-        for c in p.cuts:
-            z, d = cut_d(c)
-            found.append((x0 + z, d, chimney[name]))
-    found.sort()
-    ref = sorted(U.REF_HOLES, key=lambda h: h[1])
+    u = rust('uilleann-chanter', 'uilleann_chanter', '--bores')
+    x0, sole, found = u['x0'], u['sole'], u['found']
+    ref = u['ref']
     if len(found) != len(ref):
-        raise Unreadable(f'uilleann_chanter.py: {len(found)} holes cut, not {len(ref)}')
-    sole = x0 + info['Ls']
-    side = lambda z: U.side(z) * 2 / math.sqrt(math.pi)      # the square's round equivalent
+        raise Unreadable(f'uilleann_chanter.rs: {len(found)} holes cut, not {len(ref)}')
+    side = [s * 2 / math.sqrt(math.pi) for s in u['side']]     # the square's round equivalent
     sq = math.sqrt(math.pi / 4)
     d4 = 440 * 2 ** (-7 / 12)
     for tag, sizes in (('as-cut', [d for _, d, _ in found]),
-                       ('final', [h[3] * U.INCH for h in ref])):
+                       ('final', [h[3] * u['inch'] for h in ref])):
         ins = {
             'name': f'uilleann chanter, Fischer\'s square bore, holes {tag.replace("-", " ")}',
-            'source': ('uilleann-chanter/uilleann_chanter.py build(): hole places, '
+            'source': ('uilleann-chanter/uilleann_chanter.rs build(): hole places, '
                        + ('their drilled sizes' if tag == 'as-cut' else 'Fischer\'s final sizes')
                        + ', strip depths; the throat and the square cone from its constants; '
                        'the reed allowance fitted to low D'),
             'drive': {'kind': 'reed'},
-            'bore': [{'len_mm': 30.0, 'd_mm': U.REF_THROAT},
-                     {'len_mm': x0, 'd_mm': U.REF_THROAT},
-                     {'len_mm': sole - x0, 'd1_mm': side(x0), 'd2_mm': side(sole), 'loss_ratio': sq}],
+            'bore': [{'len_mm': 30.0, 'd_mm': u['throat']},
+                     {'len_mm': x0, 'd_mm': u['throat']},
+                     {'len_mm': sole - x0, 'd1_mm': side[0], 'd2_mm': side[1], 'loss_ratio': sq}],
             'end': 'unflanged',
             'holes': [{'name': h[0], 'at_mm': 30.0 + z, 'd_mm': d, 'chimney_mm': c}
                       for h, (z, _, c), d in zip(ref, found, sizes)],

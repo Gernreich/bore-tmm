@@ -1,6 +1,6 @@
 {
  "name": "uilleann chanter, Fischer's square bore, holes as cut",
- "source": "uilleann-chanter/uilleann_chanter.py build(): hole places, their drilled sizes, strip depths; the throat and the square cone from its constants; the reed allowance fitted to low D (59.3mm, on the holes as cut)",
+ "source": "uilleann-chanter/uilleann_chanter.rs build(): hole places, their drilled sizes, strip depths; the throat and the square cone from its constants; the reed allowance fitted to low D (59.3mm, on the holes as cut)",
  "drive": {
   "kind": "reed"
  },

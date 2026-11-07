@@ -1,6 +1,6 @@
 {
  "name": "practice chanter, 8-sided plate stack, as drawn",
- "source": "practice-chanters/practice_chanters.py build(8): every plate's place, the hole plates' slots and drills; section, wall, reed allowance and the reference's notes from standard_chanter.py's model",
+ "source": "practice-chanters/practice_chanters.rs build(8): every plate's place, the hole plates' slots and drills; section, wall, reed allowance and the reference's notes from standard_chanter.rs's model",
  "temp_c": 25.0,
  "drive": {
   "kind": "reed"

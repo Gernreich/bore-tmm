@@ -1,10 +1,11 @@
 # files in the sibling repositories, linked on GitHub from README.md
 naf_model.py
 flute_model.py
-chanter_model.py
+chanter_model.rs
+ghb_chanter.rs
+standard_chanter.rs
+practice_chanters.rs
+strip_chanter.rs
+uilleann_chanter.rs
 ghb_chanter.py
-standard_chanter.py
-practice_chanters.py
-strip_chanter.py
-uilleann_chanter.py
 bore_split.py

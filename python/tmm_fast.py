@@ -1,10 +1,11 @@
 """bore-tmm's Rust port of the design models' sounding(), for those models.
 
-Five Python models design the chanters and flutes, and each spends nearly
-all its time in sounding(): a scan and a bisection over the bore's
+The two Python flute models, square-flute/naf_model.py and
+octagonal-flute/flute_model.py, each spend nearly all their time in sounding(): a scan and a bisection over the bore's
 admittance, a few thousand times a design. src/models.rs is that loop in
 Rust, the same arithmetic in the same order, so it returns the same float,
-about a hundred times sooner. Each model finds this file in a bore-tmm
+about a hundred times sooner. (The three chanter models were Python too until 2026-11-07; they are Rust
+now and call src/models.rs directly.) Each model finds this file in a bore-tmm
 checkout beside its own repository:
 
     sys.path.append(<repository>/../bore-tmm/python)
@@ -39,11 +40,8 @@ if not os.environ.get('BORE_TMM_PURE') and os.path.exists(LIB):
     except OSError:
         lib = None
 if lib is not None:
-    lib.tmm_reed.argtypes = [D] * 8 + [SZ, DP, DP, DP, U8P, D, D, D, D, D, I64, I64]
-    lib.tmm_cone.argtypes = [D] * 6 + [SZ, DP, DP, DP, DP, U8P, D, D, I64, I64]
     lib.tmm_jet.argtypes = [D] * 5 + [SZ, U8P, DP, DP, U8P] + [D] * 7 + [I64, I64]
-    for fn in (lib.tmm_reed, lib.tmm_cone, lib.tmm_jet):
-        fn.restype = D
+    lib.tmm_jet.restype = D
 
 
 def doubles(xs):
@@ -52,20 +50,6 @@ def doubles(xs):
 
 def flags(xs):
     return (ctypes.c_uint8 * max(1, len(xs)))(*[1 if x else 0 for x in xs])
-
-
-def reed(c, rho, rh0, area0, l0, rh, area, a, seg, r, t, opened, last, q, j,
-         near, span, nscan, bis):
-    """The reed kernel: chanter_model and standard_chanter. NaN: no root."""
-    return lib.tmm_reed(c, rho, rh0, area0, l0, rh, area, a, len(seg), doubles(seg),
-                        doubles(r), doubles(t), flags(opened), last, q, j, near, span,
-                        nscan, bis)
-
-
-def cone(c, rho, c0, c1, apex, sole, zh, r, a, t, opened, near, span, nscan, bis):
-    """The cone kernel: ghb_chanter."""
-    return lib.tmm_cone(c, rho, c0, c1, apex, sole, len(zh), doubles(zh), doubles(r),
-                        doubles(a), doubles(t), flags(opened), near, span, nscan, bis)
 
 
 def jet(c, rho, rh, area, a, kind, length, r, opened, t, stub, neck_area, neck_a, leff,

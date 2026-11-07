@@ -6,9 +6,10 @@ Rust engine and the Python models are the same physics.
     python3 tools/export_models.py            # writes bores/models/*.json
     python3 tools/export_models.py --out=DIR    # writes them there instead
 
-It imports the models from the sibling repositories, read-only:
-square-flute/naf_model.py, octagonal-flute/flute_model.py,
-practice-chanters/chanter_model.py and ghb-chanter/ghb_chanter.py.
+It imports the flute models from the sibling repositories, read-only:
+square-flute/naf_model.py and octagonal-flute/flute_model.py. The chanters'
+models are Rust since 2026-11-07: practice-chanters' chanter_bores and
+`ghb_chanter --bores` print their designs, which this runs, built.
 
 These are the MODELS' bores, not the cut files'. A model's bore is what the
 generator was asked for; a cut file's is what it drew. Reading the bore back
@@ -86,55 +87,26 @@ def square_flute():
         })
 
 
+def rust(repo, exe, *args):
+    """A chanter generator's JSON on stdout, the generator built."""
+    import subprocess
+    path = os.path.join(GIT, repo, 'target', 'release', exe)
+    if not os.path.exists(path):
+        raise SystemExit(f'error: {path} is not built: cargo build --release in {repo}')
+    r = subprocess.run([path, *args], capture_output=True, text=True, check=True)
+    return json.loads(r.stdout)
+
+
 def practice_chanter():
-    use('practice-chanters')
-    import chanter_model as M
-    import practice_chanters as P
-    for n in P.BUILT:
-        b, L, pos, widths = M.design(n)
-        a = 1000 * b.a
-        # NOT the chanter practice_chanters.py builds: since 2026-10-23 that is
-        # solved in standard_chanter.py's model against a measured reference
-        # (bores/cut/ has it as drawn). This is chanter_model.py's own design,
-        # kept because it is the model's, and strip_chanter.py still uses it.
-        write(f'chanter-model-{n}-sided', {
-            'name': f'chanter_model.py\'s own design at {n} sides (not the chanter built)',
-            'source': f'practice-chanters/chanter_model.py design({n})',
-            'temp_c': M.T_C,
-            'drive': {'kind': 'reed'},
-            # the reed and staple as closed round bore, then the polygon
-            'bore': [{'len_mm': M.REED, 'd_mm': 2 * a, 'loss_ratio': 1.0},
-                     {'len_mm': L, 'd_mm': 2 * a, 'loss_ratio': 1000 * b.rh / a}],
-            'end': 'flanged',
-            'holes': [{'name': h, 'at_mm': M.REED + pos[h], 'd_mm': 2000 * b.hole_r(widths[h]),
-                       'chimney_mm': b.wall} for h in M.HOLES],
-            'notes': [{'name': nt, 'hz': M.target(nt), 'open': list(M.FINGERING[nt]),
-                       'span': 1.3, 'model_hz': M.sounding(b, L, pos, widths, nt)}
-                      for nt in M.NOTES],
-        })
+    # NOT the chanter practice_chanters builds: chanter_model.rs's own design
+    # (practice-chanters/bores.rs says why it is kept)
+    for name, d in rust('practice-chanters', 'chanter_bores')['models'].items():
+        write(name, d)
 
 
 def ghb_chanter():
-    use('ghb-chanter')
-    import ghb_chanter as G
-    M = G.M
-    ref, got, holes, vent = G.solve()
-    d0, slope = G.REF_CONE
-    write('ghb-chanter', {
-        'name': 'GHB chanter, ghb_chanter.py solve(): holes sized to sound the reference\'s notes',
-        'source': 'ghb-chanter/ghb_chanter.py solve(); hz = the reference chanter in the same model',
-        'temp_c': M.T_C,
-        'drive': {'kind': 'reed', 'apex': True},
-        'bore': [{'len_mm': G.REF_SOLE, 'd1_mm': d0, 'd2_mm': d0 + slope * G.REF_SOLE,
-                  'loss_ratio': 1.0}],
-        'end': 'unflanged',
-        'holes': [{'name': h, 'at_mm': z, 'd_mm': d, 'chimney_mm': t}
-                  for h, z, d, t in holes.values()]
-                 + [{'name': f'vent{i}', 'at_mm': G.REF_VENT[0], 'd_mm': vent,
-                     'chimney_mm': M.PLATE, 'always_open': True} for i in (1, 2)],
-        'notes': [{'name': nt, 'hz': ref[nt], 'open': list(M.FINGERING[nt]),
-                   'span': 1.25, 'model_hz': got[nt]} for nt in M.NOTES],
-    })
+    for name, d in rust('ghb-chanter', 'ghb_chanter', '--bores')['models'].items():
+        write(name, d)
 
 
 if __name__ == '__main__':

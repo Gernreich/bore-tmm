@@ -1,25 +1,28 @@
 //! The design models' inner loop, ported from Python to give the same bits.
 //!
-//! Five Python models design the chanters and flutes. Each finds a note by
-//! scanning a frequency range for a rising zero of the bore's admittance (or
-//! the jet's reactance) and bisecting it, and each design does that a few
-//! thousand times while it narrows hole positions and widths. In Python that
-//! was most of all-gates' lane T and much of lane D; the same loop here is
-//! the same arithmetic in the same order (py.rs says how), so it returns the
+//! Five models design the chanters and flutes. Each finds a note by scanning
+//! a frequency range for a rising zero of the bore's admittance (or the jet's
+//! reactance) and bisecting it, and each design does that a few thousand
+//! times while it narrows hole positions and widths. The loop here is the
+//! models' arithmetic in the same order (py.rs says how), so it returns the
 //! same float, and the cut files drawn from it do not change.
 //!
 //! Three kernels serve the five:
 //!
-//!   reed  practice-chanters/chanter_model.py and standard_chanter.py:
+//!   reed  practice-chanters' chanter_model.rs and standard_chanter.rs:
 //!         a closed tube for the reed, then bore and holes, a flanged end
-//!   cone  ghb-chanter/ghb_chanter.py: spherical waves in a cone closed at
-//!         its apex, holes and vents along it
+//!   cone  ghb-chanter's ghb_chanter.rs: spherical waves in a cone closed
+//!         at its apex, holes and vents along it
 //!   jet   square-flute/naf_model.py and octagonal-flute/flute_model.py:
 //!         a jet driving a neck, the bore below it, a closed stub above
 //!
-//! Each Python model hands over only what does not depend on frequency,
-//! computed by its own expressions (hole radii, segment lengths), and keeps
-//! its pure-Python path. python/tmm_fast.py loads this library, and
+//! The chanters are Rust since 2026-11-07 and call the reed and cone
+//! kernels directly; until then they were Python, which these gave the same
+//! bits as, and their generators' cut files came out byte for byte the same
+//! when they moved. The two flute models are still Python: each hands over
+//! only what does not depend on frequency, computed by its own expressions
+//! (hole radii, segment lengths), and keeps its pure-Python path.
+//! python/tmm_fast.py loads the jet through the C interface below, and
 //! tools/check_fast.py compares the two paths bit for bit.
 //!
 //! This is NOT the bore model in lib.rs. That one is general (cones,
@@ -90,7 +93,7 @@ fn zin(m: Mx, zr: N) -> N {
 /// sounding()'s search: scan n steps across [near/span, near*span] for a
 /// rising zero, bisect each one bis times, keep the root nearest `near`.
 /// NaN when there is none, and the Python side raises its own error.
-fn scan(near: f64, span: f64, n: i64, bis: i64, y: impl Fn(f64) -> f64) -> f64 {
+pub fn scan(near: f64, span: f64, n: i64, bis: i64, y: impl Fn(f64) -> f64) -> f64 {
     let (lo, hi) = (near / span, near * span);
     let (mut pf, mut py) = (lo, y(lo));
     let mut best: Option<f64> = None;
@@ -118,7 +121,7 @@ fn scan(near: f64, span: f64, n: i64, bis: i64, y: impl Fn(f64) -> f64) -> f64 {
     best.unwrap_or(f64::NAN)
 }
 
-// --- the reed: chanter_model.admittance, standard_chanter.admittance ---------
+// --- the reed: chanter_model's and standard_chanter's admittance -------------
 
 pub struct Reed<'a> {
     pub c: f64,
@@ -158,7 +161,7 @@ impl Reed<'_> {
     }
 }
 
-// --- the cone: ghb_chanter.admittance -----------------------------------------
+// --- the cone: ghb_chanter's admittance ---------------------------------------
 
 pub struct Cone<'a> {
     pub c: f64,
@@ -276,7 +279,7 @@ impl Jet<'_> {
     }
 }
 
-// --- the C interface, for python/tmm_fast.py ----------------------------------
+// --- the C interface, for python/tmm_fast.py: the jet, for the two flutes ----
 
 unsafe fn sl<'a, T>(p: *const T, n: usize) -> &'a [T] {
     if n == 0 {
@@ -286,34 +289,8 @@ unsafe fn sl<'a, T>(p: *const T, n: usize) -> &'a [T] {
     }
 }
 
-/// Reed: the resonance nearest `near` (sounding), or with nscan < 0 the
-/// admittance at `near` itself (for tests).
-#[no_mangle]
-pub unsafe extern "C" fn tmm_reed(
-    c: f64, rho: f64, rh0: f64, area0: f64, l0: f64, rh: f64, area: f64, a: f64,
-    n: usize, seg: *const f64, r: *const f64, t: *const f64, open: *const u8, last: f64,
-    q: f64, j: f64, near: f64, span: f64, nscan: i64, bis: i64,
-) -> f64 {
-    let m = Reed {
-        c, rho, rh0, area0, l0, rh, area, a,
-        seg: sl(seg, n), r: sl(r, n), t: sl(t, n), open: sl(open, n), last, q, j,
-    };
-    if nscan < 0 { m.y(near) } else { scan(near, span, nscan, bis, |x| m.y(x)) }
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn tmm_cone(
-    c: f64, rho: f64, c0: f64, c1: f64, apex: f64, sole: f64,
-    n: usize, zh: *const f64, r: *const f64, a: *const f64, t: *const f64, open: *const u8,
-    near: f64, span: f64, nscan: i64, bis: i64,
-) -> f64 {
-    let m = Cone {
-        c, rho, c0, c1, apex, sole,
-        zh: sl(zh, n), r: sl(r, n), a: sl(a, n), t: sl(t, n), open: sl(open, n),
-    };
-    if nscan < 0 { m.y(near) } else { scan(near, span, nscan, bis, |x| m.y(x)) }
-}
-
+/// Jet: the resonance nearest `near` (sounding), or with nscan < 0 the
+/// reactance at `near` itself (for tests).
 #[no_mangle]
 pub unsafe extern "C" fn tmm_jet(
     c: f64, rho: f64, rh: f64, area: f64, a: f64,

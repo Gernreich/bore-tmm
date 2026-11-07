@@ -1,6 +1,6 @@
 {
  "name": "practice chanter, square strips under a round top, as drawn",
- "source": "practice-chanters/strip_chanter.py build(): round top, strip holes and the sole; section and reed allowance from chanter_model.py",
+ "source": "practice-chanters/strip_chanter.rs build(): round top, strip holes and the sole; section and reed allowance from chanter_model.rs",
  "temp_c": 25.0,
  "drive": {
   "kind": "reed"

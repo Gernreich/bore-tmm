@@ -9,12 +9,12 @@
 
 What a described bore plays. Describe a wind instrument's bore from its driven end down: its lengths of cylinder and cone, the tone holes along it, how it ends and what drives it. bore-tmm then gives each fingering's note, how far that note is from where it should be, and every register the fingering has.
 
-It is a transfer-matrix model in Rust. The instrument repositories each carry their own copy of the same physics, in Python, to design their instruments:
+It is a transfer-matrix model in Rust. The instrument repositories each carry their own copy of the same physics to design their instruments, the flutes' in Python and the chanters' in Rust (Python until 2026-11-07):
 
 - [naf_model.py](https://github.com/Gernreich/square-flute/blob/main/naf_model.py), in square-flute
 - [flute_model.py](https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.py), in octagonal-flute
-- [chanter_model.py](https://github.com/Gernreich/practice-chanters/blob/main/chanter_model.py) and [standard_chanter.py](https://github.com/Gernreich/practice-chanters/blob/main/standard_chanter.py), in practice-chanters
-- [ghb_chanter.py](https://github.com/Gernreich/ghb-chanter/blob/main/ghb_chanter.py), in ghb-chanter
+- [chanter_model.rs](https://github.com/Gernreich/practice-chanters/blob/main/chanter_model.rs) and [standard_chanter.rs](https://github.com/Gernreich/practice-chanters/blob/main/standard_chanter.rs), in practice-chanters
+- [ghb_chanter.rs](https://github.com/Gernreich/ghb-chanter/blob/main/ghb_chanter.rs), in ghb-chanter
 
 bore-tmm does not design anything. It answers the question a cut file has to answer: given this bore, what does it play? It reads each instrument's bore back out of what its generator draws, checks the tuning in a gate, and has the tools to measure a built bore and fit the model's uncalibrated parts to it.
 
@@ -70,9 +70,9 @@ What no part carries comes from the generator, and each reader says so in the fi
 TUNING OK: 106 notes in 14 files, every one within 5 cents or its own stated tolerance
 ```
 
-Every note is within 0.3 cents of its model except one. The 8-sided plate chanter's low G is 6.7 cents sharp, which `practice_chanters.py` accepts on purpose: the bore is the nearest whole number of plates, and low G has no hole to tune it. Its file says so, with a 10-cent tolerance.
+Every note is within 0.3 cents of its model except one. The 8-sided plate chanter's low G is 6.7 cents sharp, which `practice_chanters.rs` accepts on purpose: the bore is the nearest whole number of plates, and low G has no hole to tune it. Its file says so, with a 10-cent tolerance.
 
-## Agreement with the Python models
+## Agreement with the designing models
 
 `tools/export_models.py` writes each model's own design to `bores/models/`, with that model's prediction for every note. `check --compare` then reads:
 
@@ -82,17 +82,17 @@ MODEL MATCH: 49 notes, worst 0.00000 cents from the designing model
 
 **What the comparison found:**
 
-- **The plate chanter is no longer `chanter_model.py`'s design.** Since 2026-10-23 `practice_chanters.py` has solved it in `standard_chanter.py`'s model, against a measured reference chanter. The export of `chanter_model.py`'s own 8-sided design is kept, renamed `chanter-model-8-sided`, because `strip_chanter.py` still uses that model. `bores/cut/` has the chanter that is actually cut.
-- **The GHB chanter's loss radius** was half the others' (the cone's diameter / 4) until 2026-11-05, when `ghb_chanter.py` was corrected to the radius. That moved the model's reference notes 2.7 to 6.0 cents flat, but the solved hole sizes by at most 0.017 mm and the vents by 0.053 mm, less than the kerf.
+- **The plate chanter is no longer `chanter_model.rs`'s design.** Since 2026-10-23 `practice_chanters.rs` (then `.py`) has solved it in `standard_chanter.rs`'s model, against a measured reference chanter. The export of `chanter_model.rs`'s own 8-sided design is kept, renamed `chanter-model-8-sided`, because `strip_chanter.rs` still uses that model. `bores/cut/` has the chanter that is actually cut.
+- **The GHB chanter's loss radius** was half the others' (the cone's diameter / 4) until 2026-11-05, when `ghb_chanter.py` (Rust since 2026-11-07) was corrected to the radius. That moved the model's reference notes 2.7 to 6.0 cents flat, but the solved hole sizes by at most 0.017 mm and the vents by 0.053 mm, less than the kerf.
 
 ## The design models' inner loop, in Rust
 
-The five Python models that design the chanters and flutes each find a note by scanning a frequency range for a rising zero of the bore's admittance, or the jet's reactance, and narrowing it down. A design does that a few thousand times, which made the models most of the time `all-gates.sh` spent in lanes D and T. Since 2026-11-07 that loop, each model's `sounding()`, also exists in Rust in `src/models.rs`. When this repository is checked out beside them and built, the models call it through `python/tmm_fast.py`.
+The five models that design the chanters and flutes each find a note by scanning a frequency range for a rising zero of the bore's admittance, or the jet's reactance, and narrowing it down. A design does that a few thousand times, which made the models most of the time `all-gates.sh` spent in lanes D and T. Since 2026-11-07 that loop, each model's `sounding()`, also exists in Rust in `src/models.rs`. The chanters' generators moved to Rust the same day and call it directly; the two flute models, still Python, call it through `python/tmm_fast.py` when this repository is checked out beside them and built.
 
 | Model | Kernel |
 |---|---|
-| `practice-chanters/chanter_model.py`, `standard_chanter.py` | reed: a closed tube for the reed, then bore and holes, a flanged end |
-| `ghb-chanter/ghb_chanter.py` | cone: spherical waves in a cone closed at its apex |
+| `practice-chanters/chanter_model.rs`, `standard_chanter.rs` | reed: a closed tube for the reed, then bore and holes, a flanged end |
+| `ghb-chanter/ghb_chanter.rs` | cone: spherical waves in a cone closed at its apex |
 | `square-flute/naf_model.py`, `octagonal-flute/flute_model.py` | jet: a neck the jet drives, the bore below, a closed stub above |
 
 **It gives the same bits, not close ones.** The answers are hole positions and widths in committed cut files, and a port that moved one by 1e-12 mm would rewrite all of them. So `src/models.rs` is each model's arithmetic in the same order, and `src/py.rs` reproduces Python 3.9's numbers, measured against CPython on 200,000 random cases:
@@ -105,13 +105,13 @@ This is not the engine in `src/lib.rs`, which is general and agrees with the mod
 
 **The time:** `tools/read_cut_files.py` went from 27 s to 2 s and `tools/export_models.py` from 25 s to 1 s. Practice-chanters' drawings reproduce in 8 s instead of 17, square-flute's in 1 s instead of 15.
 
-**The Python is still there, and still decides.** Without the library (bore-tmm not checked out, not built, or `BORE_TMM_PURE=1`) each model runs its own Python, as before, and every file comes out the same; all seven repositories that use these models reproduce byte for byte either way. The first call in a process runs both and compares them bit for bit. If they ever differ, because a model was edited without its port or the library is older than its source, it says so on stderr and uses the Python from then on. A stale build costs time, never a wrong cut file. `tools/check_fast.py` is the gate:
+**For the flutes the Python is still there, and still decides.** Without the library (bore-tmm not checked out, not built, or `BORE_TMM_PURE=1`) each flute model runs its own Python, as before, and every file comes out the same. The first call in a process runs both and compares them bit for bit. If they ever differ, because a model was edited without its port or the library is older than its source, it says so on stderr and uses the Python from then on. A stale build costs time, never a wrong cut file. `tools/check_fast.py` is the gate:
 
 ```
-FAST MATCH: 504 soundings in 5 models, bit for bit
+FAST MATCH: 216 soundings in 2 models, bit for bit
 ```
 
-It compares every model on its own designs, then on the same designs with every hole moved and resized at random, and on calls that find no resonance and must raise the same error. A coefficient changed from 0.62 to 0.6201 in the Rust alone failed 465 of the 504, and each generator warned, fell back to its Python and still reproduced its files.
+It compares every model on its own designs, then on the same designs with every hole moved and resized at random, and on calls that find no resonance and must raise the same error. When it still covered all five models, a coefficient changed from 0.62 to 0.6201 in the Rust alone failed 465 of 504, and each generator warned, fell back to its Python and still reproduced its files. The three chanter models left it on 2026-11-07: they are Rust now, with no Python to compare, and their generators' cut files and pages came out byte for byte the same when they moved.
 
 ## Predictions
 
@@ -135,7 +135,7 @@ The model does not include the bore's 16 turns, where a lattice corner grows the
 
 **The swept-curve spiral** has been blown, but its note is not reported. It is 1000 mm of the same bore with the same bell. Which mouthpiece it carries is not recorded, so the shipped one is assumed. The model's resonances are 77.4, 231.4, **380.2** (F#4 +47c), 510.7, 611.7 and 724.2 Hz. One note measured off it would test this prediction.
 
-**The uilleann chanter** is read from `uilleann_chanter.py`'s parts: Fischer's square cone under a round throat, and his eight holes at their drilled sizes (`-as-cut`) and his final sizes (`-final`). The reed allowance is fitted so that low D sounds with every hole closed. **The model does not give it a playable scale.** With a cylinder reed the lowest notes come out sharp and the top ones flat, and D5 is 300 cents out. With the cone carried to its apex every hole plays about a minor third sharp. The suspects, in order:
+**The uilleann chanter** is read from `uilleann_chanter.rs`'s parts: Fischer's square cone under a round throat, and his eight holes at their drilled sizes (`-as-cut`) and his final sizes (`-final`). The reed allowance is fitted so that low D sounds with every hole closed. **The model does not give it a playable scale.** With a cylinder reed the lowest notes come out sharp and the top ones flat, and D5 is 300 cents out. With the cone carried to its apex every hole plays about a minor third sharp. The suspects, in order:
 
 1. the fingering, taken as each note opening only its own hole;
 2. the reed stand-in, for a cone this narrow at the top;
@@ -181,14 +181,14 @@ $B compare bores/cut/octagonal-flute.json E4 flute-E4.wav --to=3000 \
 - **The engine agrees with every designing model**, `MODEL MATCH`, to 0.01 cents.
 - **The Rust port gives the models' own bits**, `FAST MATCH`.
 
-Everything is read into a temporary directory. When a generator changes on purpose, rerun `python3 tools/read_cut_files.py` and commit the bores with the change.
+Everything is read into a temporary directory. When a generator changes on purpose, rerun `python3 tools/read_cut_files.py` and commit the bores with the change. The chanters are read through their own Rust: `practice-chanters/target/release/chanter_bores`, `ghb_chanter --bores` and `uilleann_chanter --bores`, which those repositories build.
 
 ## Files
 
 - `Cargo.toml`, `Cargo.lock`: the crate and its pinned dependencies (serde, serde_json).
-- `src/lib.rs`: the engine. `src/models.rs`: the five design models' inner loop, and `src/py.rs`, Python's numbers. `python/tmm_fast.py`: what loads them for the models. `src/measure.rs`: the sweep, WAV in and out, the FFT and the peak analysis. `src/main.rs`: the command line.
+- `src/lib.rs`: the engine. `src/models.rs`: the five design models' inner loop, and `src/py.rs`, Python's numbers. `python/tmm_fast.py`: what loads the jet for the flute models. `src/measure.rs`: the sweep, WAV in and out, the FFT and the peak analysis. `src/main.rs`: the command line.
 - `tests/physics.rs`: the textbook checks. `tests/measure.rs`: the rig's analysis through a coloured loudspeaker, and WAV round trips.
-- `tools/read_cut_files.py`: the bores as drawn. `tools/svgparts.py`: the shapes in a cut file. `tools/export_models.py`: the designing models' own bores. `tools/check_fast.py`: the port against the models.
+- `tools/read_cut_files.py`: the bores as drawn. `tools/svgparts.py`: the shapes in a cut file. `tools/export_models.py`: the designing models' own bores. `tools/check_fast.py`: the port against the flute models.
 - `bores/cut/`, `bores/predict/`, `bores/models/`: what those write. `bores/rig/reference-cavity.json`: the rig's reference.
 - `.doc-audit-ignore`, `.doc-audit-generated`: the sibling repositories' files this page names, and the generated folders.
 - `index.html`: this page, built from `README.md` by lasermade-tools' md2html.

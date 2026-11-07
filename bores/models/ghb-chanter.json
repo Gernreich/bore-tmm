@@ -1,6 +1,6 @@
 {
- "name": "GHB chanter, ghb_chanter.py solve(): holes sized to sound the reference's notes",
- "source": "ghb-chanter/ghb_chanter.py solve(); hz = the reference chanter in the same model",
+ "name": "GHB chanter, ghb_chanter.rs solve(): holes sized to sound the reference's notes",
+ "source": "ghb-chanter/ghb_chanter.rs solve(); hz = the reference chanter in the same model",
  "temp_c": 25.0,
  "drive": {
   "kind": "reed",

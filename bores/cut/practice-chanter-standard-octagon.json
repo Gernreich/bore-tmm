@@ -1,6 +1,6 @@
 {
  "name": "practice chanter, standard octagon, as drawn",
- "source": "practice-chanters/standard_octagon.py build(): strip slots and the sole; section, wall, reed allowance and the reference's notes from standard_chanter.py's model",
+ "source": "practice-chanters/standard_octagon.rs build(): strip slots and the sole; section, wall, reed allowance and the reference's notes from standard_chanter.rs's model",
  "temp_c": 25.0,
  "drive": {
   "kind": "reed"

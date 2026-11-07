@@ -1,6 +1,6 @@
 {
  "name": "practice chanter, standard strips (square bore), as drawn",
- "source": "practice-chanters/standard_chanter.py build(): strip holes and the sole; section, wall, reed allowance and the reference's notes from standard_chanter.py's model",
+ "source": "practice-chanters/standard_chanter.rs build(): strip holes and the sole; section, wall, reed allowance and the reference's notes from standard_chanter.rs's model",
  "temp_c": 25.0,
  "drive": {
   "kind": "reed"
