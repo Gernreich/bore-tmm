@@ -99,7 +99,7 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <body>
 <button class="tog" type="button">theme</button>
 <div class="wrap">
-<nav><b>Contents</b><a class="l1" href="#bore-tmm">bore-tmm</a><a class="l2" href="#the-physics">The physics</a><a class="l2" href="#the-bore-file">The bore file</a><a class="l2" href="#what-the-drawings-play">What the drawings play</a><a class="l2" href="#agreement-with-the-python-models">Agreement with the Python models</a><a class="l2" href="#predictions">Predictions</a><a class="l2" href="#measuring-a-bore">Measuring a bore</a><a class="l2" href="#the-gate">The gate</a><a class="l2" href="#files">Files</a><a class="l2" href="#credits">Credits</a></nav>
+<nav><b>Contents</b><a class="l1" href="#bore-tmm">bore-tmm</a><a class="l2" href="#the-physics">The physics</a><a class="l2" href="#the-bore-file">The bore file</a><a class="l2" href="#what-the-drawings-play">What the drawings play</a><a class="l2" href="#agreement-with-the-python-models">Agreement with the Python models</a><a class="l2" href="#the-design-models-inner-loop-in-rust">The design models&#x27; inner loop, in Rust</a><a class="l2" href="#predictions">Predictions</a><a class="l2" href="#measuring-a-bore">Measuring a bore</a><a class="l2" href="#the-gate">The gate</a><a class="l2" href="#files">Files</a><a class="l2" href="#credits">Credits</a></nav>
 <main>
 <h1 id="bore-tmm">bore-tmm</h1>
 <p><strong><a href="https://gernreich.github.io/" target="_blank" rel="noopener">← All projects</a></strong></p>
@@ -162,6 +162,43 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
 <li><strong>The plate chanter is no longer <code>chanter_model.py</code>'s design.</strong> Since 2026-10-23 <code>practice_chanters.py</code> has solved it in <code>standard_chanter.py</code>'s model, against a measured reference chanter. The export of <code>chanter_model.py</code>'s own 8-sided design is kept, renamed <code>chanter-model-8-sided</code>, because <code>strip_chanter.py</code> still uses that model. <code>bores/cut/</code> has the chanter that is actually cut.</li>
 <li><strong>The GHB chanter's loss radius</strong> was half the others' (the cone's diameter / 4) until 2026-11-05, when <code>ghb_chanter.py</code> was corrected to the radius. That moved the model's reference notes 2.7 to 6.0 cents flat, but the solved hole sizes by at most 0.017 mm and the vents by 0.053 mm, less than the kerf.</li>
 </ul>
+<h2 id="the-design-models-inner-loop-in-rust">The design models' inner loop, in Rust</h2>
+<p>The five Python models that design the chanters and flutes each find a note by scanning a frequency range for a rising zero of the bore's admittance, or the jet's reactance, and narrowing it down. A design does that a few thousand times, which made the models most of the time <code>all-gates.sh</code> spent in lanes D and T. Since 2026-11-07 that loop, each model's <code>sounding()</code>, also exists in Rust in <code>src/models.rs</code>. When this repository is checked out beside them and built, the models call it through <code>python/tmm_fast.py</code>.</p>
+<div class="tw">
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Kernel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>practice-chanters/chanter_model.py</code>, <code>standard_chanter.py</code></td>
+<td>reed: a closed tube for the reed, then bore and holes, a flanged end</td>
+</tr>
+<tr>
+<td><code>ghb-chanter/ghb_chanter.py</code></td>
+<td>cone: spherical waves in a cone closed at its apex</td>
+</tr>
+<tr>
+<td><code>square-flute/naf_model.py</code>, <code>octagonal-flute/flute_model.py</code></td>
+<td>jet: a neck the jet drives, the bore below, a closed stub above</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>It gives the same bits, not close ones.</strong> The answers are hole positions and widths in committed cut files, and a port that moved one by 1e-12 mm would rewrite all of them. So <code>src/models.rs</code> is each model's arithmetic in the same order, and <code>src/py.rs</code> reproduces Python 3.9's numbers, measured against CPython on 200,000 random cases:</p>
+<ul>
+<li><strong>Mixed arithmetic promotes.</strong> A float times a complex is a full complex product, and the models' matrices hold the ints 1 and 0.</li>
+<li><strong>CPython's complex product and quotient use fused multiply-adds</strong>, as Apple's clang compiled them. The plain formulas disagree in 26% and 15% of cases.</li>
+<li><strong><code>cmath.cos</code> and <code>cmath.sin</code> take sine and cosine from one <code>__sincos_stret</code></strong>, which rounds differently from separate calls about once in 1,500. And <code>x ** 2</code> is libm's <code>pow</code>, not <code>x * x</code>.</li>
+</ul>
+<p>This is not the engine in <code>src/lib.rs</code>, which is general and agrees with the models to 0.01 cents, as near as a different formulation can.</p>
+<p><strong>The time:</strong> <code>tools/read_cut_files.py</code> went from 27 s to 2 s and <code>tools/export_models.py</code> from 25 s to 1 s. Practice-chanters' drawings reproduce in 8 s instead of 17, square-flute's in 1 s instead of 15.</p>
+<p><strong>The Python is still there, and still decides.</strong> Without the library (bore-tmm not checked out, not built, or <code>BORE_TMM_PURE=1</code>) each model runs its own Python, as before, and every file comes out the same; all seven repositories that use these models reproduce byte for byte either way. The first call in a process runs both and compares them bit for bit. If they ever differ, because a model was edited without its port or the library is older than its source, it says so on stderr and uses the Python from then on. A stale build costs time, never a wrong cut file. <code>tools/check_fast.py</code> is the gate:</p>
+<pre><code>FAST MATCH: 504 soundings in 5 models, bit for bit</code></pre>
+<p>It compares every model on its own designs, then on the same designs with every hole moved and resized at random, and on calls that find no resonance and must raise the same error. A coefficient changed from 0.62 to 0.6201 in the Rust alone failed 465 of the 504, and each generator warned, fell back to its Python and still reproduced its files.</p>
 <h2 id="predictions">Predictions</h2>
 <p><code>bores/predict/</code> holds the bores whose pitch is the open question rather than the check, so the tuning gate does not judge them.</p>
 <p><strong>The three-turn trumpet</strong> is the 24-ring legacy mouthpiece, 1096 mm of 10 mm square bore (the length <code>bore_split.py</code> reports for its walk), and the 17-ring bell. Every ring is a short cylinder of its aperture's area, read off the cut files. Its one measured note is F4, 349.2 Hz, and with nothing calibrated the model has a resonance at <strong>350.1 Hz, 4.6 cents away</strong>:</p>
@@ -200,20 +237,21 @@ $B compare bores/cut/octagonal-flute.json E4 flute-E4.wav --to=3000 \
     --ref=cavity.wav --ref-bore=bores/rig/reference-cavity.json</code></pre>
 <p><code>compare</code> lists each model resonance beside the measured one, in cents. <code>simulate</code> writes the recording the rig would make of a model. On that, with the loudspeaker deliberately coloured (a 150Hz high-pass and a 6dB bump at 900Hz) and noise added, the reference recovers every resonance of the octagonal flute's E4 fingering within 5 cents, and <code>cargo test</code> checks it does. <strong>The rig itself has not been built.</strong> Only the analysis is tested, and only on simulated recordings.</p>
 <h2 id="the-gate">The gate</h2>
-<p><code>lasermade-tools/all-gates.sh</code> runs lane T, four verdicts:</p>
+<p><code>lasermade-tools/all-gates.sh</code> builds this library before its lanes start, then runs lane T, five verdicts:</p>
 <ul>
 <li><code>cargo test</code>: the textbook checks and the rig's analysis.</li>
 <li><strong>The bores read now are the bores committed</strong> in <code>bores/cut/</code> and <code>bores/predict/</code>. A generator that moves a hole shows up as a diff even before it goes out of tune.</li>
 <li><strong>Every drawn bore is in tune</strong>, <code>TUNING OK</code>, within 5 cents or its stated tolerance. Moving one octagonal-flute hole by 3 mm fails it at −7.9 cents.</li>
 <li><strong>The engine agrees with every designing model</strong>, <code>MODEL MATCH</code>, to 0.01 cents.</li>
+<li><strong>The Rust port gives the models' own bits</strong>, <code>FAST MATCH</code>.</li>
 </ul>
 <p>Everything is read into a temporary directory. When a generator changes on purpose, rerun <code>python3 tools/read_cut_files.py</code> and commit the bores with the change.</p>
 <h2 id="files">Files</h2>
 <ul>
 <li><code>Cargo.toml</code>, <code>Cargo.lock</code>: the crate and its pinned dependencies (serde, serde_json).</li>
-<li><code>src/lib.rs</code>: the engine. <code>src/measure.rs</code>: the sweep, WAV in and out, the FFT and the peak analysis. <code>src/main.rs</code>: the command line.</li>
+<li><code>src/lib.rs</code>: the engine. <code>src/models.rs</code>: the five design models' inner loop, and <code>src/py.rs</code>, Python's numbers. <code>python/tmm_fast.py</code>: what loads them for the models. <code>src/measure.rs</code>: the sweep, WAV in and out, the FFT and the peak analysis. <code>src/main.rs</code>: the command line.</li>
 <li><code>tests/physics.rs</code>: the textbook checks. <code>tests/measure.rs</code>: the rig's analysis through a coloured loudspeaker, and WAV round trips.</li>
-<li><code>tools/read_cut_files.py</code>: the bores as drawn. <code>tools/svgparts.py</code>: the shapes in a cut file. <code>tools/export_models.py</code>: the designing models' own bores.</li>
+<li><code>tools/read_cut_files.py</code>: the bores as drawn. <code>tools/svgparts.py</code>: the shapes in a cut file. <code>tools/export_models.py</code>: the designing models' own bores. <code>tools/check_fast.py</code>: the port against the models.</li>
 <li><code>bores/cut/</code>, <code>bores/predict/</code>, <code>bores/models/</code>: what those write. <code>bores/rig/reference-cavity.json</code>: the rig's reference.</li>
 <li><code>.doc-audit-ignore</code>, <code>.doc-audit-generated</code>: the sibling repositories' files this page names, and the generated folders.</li>
 <li><code>index.html</code>: this page, built from <code>README.md</code> by lasermade-tools' md2html.py.</li>
