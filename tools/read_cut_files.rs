@@ -468,11 +468,11 @@ fn bell() -> Result<(Vec<J>, String), Err> {
 }
 
 fn centreline(walk: &str) -> Result<f64, Err> {
-    let out = tool(Path::new("python3"), &[&trumpet().join("tools/bore_split.py").to_string_lossy(), walk, "--bore=10", "--straight=30", "--no-write"])?;
+    let out = tool(&trumpet().join("target/release/bore_split"), &[walk, "--bore=10", "--straight=30", "--no-write"])?;
     let rx = re::rx(r"\(([\d.]+)mm of centreline\)");
     match re::first(&rx, &out) {
         Some(m) => Ok(py::float(re::g(&m, 1)).unwrap()),
-        None => Err(Unreadable("bore_split.py did not report a centreline length".into())),
+        None => Err(Unreadable("bore_split did not report a centreline length".into())),
     }
 }
 
@@ -501,7 +501,7 @@ fn trumpets(cx: &Ctx) -> R {
             ("name", s(&format!("three-turn trumpet, {why}"))),
             (
                 "source",
-                s(&format!("{msrc}; {}mm of 10mm square bore, bore_split.py on tools/walks/coil-3t.txt with --straight=30; {bsrc}", py::g(l))),
+                s(&format!("{msrc}; {}mm of 10mm square bore, bore_split on tools/walks/coil-3t.txt with --straight=30; {bsrc}", py::g(l))),
             ),
             ("drive", obj(vec![("kind", s("reed"))])),
             ("bore", J::A(bore)),

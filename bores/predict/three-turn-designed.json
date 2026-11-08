@@ -1,6 +1,6 @@
 {
  "name": "three-turn trumpet, as designed: the shipped 30-ring mouthpiece",
- "source": "trumpet-elbows-allowed/parts/mouthpiece/cut-files/mouthpiece-bore10-trumpet-parts-cut-files.svg; 1096mm of 10mm square bore, bore_split.py on tools/walks/coil-3t.txt with --straight=30; trumpet-elbows-allowed/parts/bell/cut-files/bell-round10-153mm-17rings-x3-rim86-cut-files.svg",
+ "source": "trumpet-elbows-allowed/parts/mouthpiece/cut-files/mouthpiece-bore10-trumpet-parts-cut-files.svg; 1096mm of 10mm square bore, bore_split on tools/walks/coil-3t.txt with --straight=30; trumpet-elbows-allowed/parts/bell/cut-files/bell-round10-153mm-17rings-x3-rim86-cut-files.svg",
  "drive": {
   "kind": "reed"
  },
