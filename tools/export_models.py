@@ -6,10 +6,10 @@ Rust engine and the Python models are the same physics.
     python3 tools/export_models.py            # writes bores/models/*.json
     python3 tools/export_models.py --out=DIR    # writes them there instead
 
-It imports the flute models from the sibling repositories, read-only:
-square-flute/naf_model.py and octagonal-flute/flute_model.py. The chanters'
-models are Rust since 2026-11-07: practice-chanters' chanter_bores and
-`ghb_chanter --bores` print their designs, which this runs, built.
+Every model is Rust since 2026-11-07, in the sibling repositories, and
+prints its own designs, which this runs, built: `naf_model --bores` in
+square-flute, `flute_model --bores` in octagonal-flute, practice-chanters'
+chanter_bores and `ghb_chanter --bores`.
 
 These are the MODELS' bores, not the cut files'. A model's bore is what the
 generator was asked for; a cut file's is what it drew. Reading the bore back
@@ -40,55 +40,17 @@ def write(name, d):
 
 
 def octagonal_flute():
-    use('octagonal-flute')
-    import flute_model as M
-    b = M.Bore()
-    L, holes, diams = M.design(b)
-    write('octagonal-flute', {
-        'name': 'octagonal flute in D, flute_model.py design',
-        'source': 'octagonal-flute/flute_model.py design()',
-        'temp_c': M.T_C,
-        'drive': {'kind': 'jet', 'area_mm2': M.COVER * M.emb_area(),
-                  'chimney_mm': M.CHIMNEY, 'mouth': M.MOUTH, 'stub_mm': M.CORK},
-        'bore': [{'len_mm': L, 'd_mm': 2000 * b.a, 'loss_ratio': b.rh / b.a}],
-        'end': 'unflanged',
-        'holes': [{'name': M.HOLES[i], 'at_mm': holes[i], 'd_mm': diams[i],
-                   'chimney_mm': M.T} for i in range(6)],
-        'notes': [{'name': M.NOTES[n], 'hz': M.TARGETS[n], 'open': M.HOLES[:n],
-                   'span': 1.4,
-                   'model_hz': M.sounding(b, L, holes, n, M.TARGETS[n], diams)}
-                  for n in range(7)],
-    })
+    for name, d in rust('octagonal-flute', 'flute_model', '--bores')['models'].items():
+        write(name, d)
 
 
 def square_flute():
-    use('square-flute')
-    import naf_model as M
-    for name, w, d, wall, how in M.VARIANTS:
-        if w is None:
-            continue
-        b = M.Bore(w, d)
-        with M.window(w):
-            L, holes, diams, _ = M.design(b, wall, even=True)
-            model = [M.sounding(b, L, holes, n, wall, M.TARGETS[n], diams) for n in range(6)]
-        names = [f'h{i + 1}' for i in range(5)]
-        write('square-flute-' + name, {
-            'name': f'square-bore flute {name}, naf_model.py design (laid out for the hands)',
-            'source': 'square-flute/naf_model.py design(even=True)',
-            'temp_c': M.T_C,
-            'drive': {'kind': 'jet', 'area_mm2': w * M.WINDOW_L, 'chimney_mm': M.WINDOW_T,
-                      'mouth': M.MOUTH, 'stub_mm': M.WINDOW_L / 2},
-            'bore': [{'len_mm': L, 'd_mm': 2000 * b.a, 'loss_ratio': b.rh / b.a}],
-            'end': 'unflanged',
-            'holes': [{'name': names[i], 'at_mm': holes[i], 'd_mm': diams[i],
-                       'chimney_mm': wall} for i in range(5)],
-            'notes': [{'name': M.NOTES[n], 'hz': M.TARGETS[n], 'open': names[:n],
-                       'span': 1.4, 'model_hz': model[n]} for n in range(6)],
-        })
+    for name, d in rust('square-flute', 'naf_model', '--bores')['models'].items():
+        write(name, d)
 
 
 def rust(repo, exe, *args):
-    """A chanter generator's JSON on stdout, the generator built."""
+    """A model's or a generator's JSON on stdout, the program built."""
     import subprocess
     path = os.path.join(GIT, repo, 'target', 'release', exe)
     if not os.path.exists(path):

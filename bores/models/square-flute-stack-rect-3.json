@@ -1,6 +1,6 @@
 {
- "name": "square-bore flute stack-rect-3, naf_model.py design (laid out for the hands)",
- "source": "square-flute/naf_model.py design(even=True)",
+ "name": "square-bore flute stack-rect-3, naf_model.rs design (laid out for the hands)",
+ "source": "square-flute/naf_model.rs design(even=true)",
  "temp_c": 25.0,
  "drive": {
   "kind": "jet",

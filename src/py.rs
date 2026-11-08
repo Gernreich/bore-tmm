@@ -22,8 +22,9 @@
 //!
 //! Every libm function is called through a function pointer behind
 //! black_box, so the compiler cannot fold, merge or replace a call the way
-//! clang did inside CPython. tools/check_fast.py is the test that all of this
-//! still holds: it runs every model both ways and compares bits.
+//! clang did inside CPython. tools/check_fast.py tested that all of this held,
+//! running every model both ways and comparing bits, until the models' Python
+//! was retired on 2026-11-07; the generators' reproduced files hold it now.
 
 use std::hint::black_box;
 use std::ops::{Add, Div, Mul, Neg, Sub};

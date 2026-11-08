@@ -1,6 +1,6 @@
 {
- "name": "octagonal flute in D, flute_model.py design",
- "source": "octagonal-flute/flute_model.py design()",
+ "name": "octagonal flute in D, flute_model.rs design",
+ "source": "octagonal-flute/flute_model.rs design()",
  "temp_c": 25.0,
  "drive": {
   "kind": "jet",

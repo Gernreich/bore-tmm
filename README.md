@@ -9,10 +9,10 @@
 
 What a described bore plays. Describe a wind instrument's bore from its driven end down: its lengths of cylinder and cone, the tone holes along it, how it ends and what drives it. bore-tmm then gives each fingering's note, how far that note is from where it should be, and every register the fingering has.
 
-It is a transfer-matrix model in Rust. The instrument repositories each carry their own copy of the same physics to design their instruments, the flutes' in Python and the chanters' in Rust (Python until 2026-11-07):
+It is a transfer-matrix model in Rust. The instrument repositories each carry their own copy of the same physics to design their instruments, all in Rust since 2026-11-07 (Python until then):
 
-- [naf_model.py](https://github.com/Gernreich/square-flute/blob/main/naf_model.py), in square-flute
-- [flute_model.py](https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.py), in octagonal-flute
+- [naf_model.rs](https://github.com/Gernreich/square-flute/blob/main/naf_model.rs), in square-flute
+- [flute_model.rs](https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.rs), in octagonal-flute
 - [chanter_model.rs](https://github.com/Gernreich/practice-chanters/blob/main/chanter_model.rs) and [standard_chanter.rs](https://github.com/Gernreich/practice-chanters/blob/main/standard_chanter.rs), in practice-chanters
 - [ghb_chanter.rs](https://github.com/Gernreich/ghb-chanter/blob/main/ghb_chanter.rs), in ghb-chanter
 
@@ -87,13 +87,13 @@ MODEL MATCH: 49 notes, worst 0.00000 cents from the designing model
 
 ## The design models' inner loop, in Rust
 
-The five models that design the chanters and flutes each find a note by scanning a frequency range for a rising zero of the bore's admittance, or the jet's reactance, and narrowing it down. A design does that a few thousand times, which made the models most of the time `all-gates.sh` spent in lanes D and T. Since 2026-11-07 that loop, each model's `sounding()`, also exists in Rust in `src/models.rs`. The chanters' generators moved to Rust the same day and call it directly; the two flute models, still Python, call it through `python/tmm_fast.py` when this repository is checked out beside them and built.
+The five models that design the chanters and flutes each find a note by scanning a frequency range for a rising zero of the bore's admittance, or the jet's reactance, and narrowing it down. A design does that a few thousand times, which made the models most of the time `all-gates.sh` spent in lanes D and T. Since 2026-11-07 that loop, each model's `sounding()`, is Rust, in `src/models.rs`, and every model calls it directly: the chanters' generators moved to Rust that day, and the two flute models later the same day.
 
 | Model | Kernel |
 |---|---|
 | `practice-chanters/chanter_model.rs`, `standard_chanter.rs` | reed: a closed tube for the reed, then bore and holes, a flanged end |
 | `ghb-chanter/ghb_chanter.rs` | cone: spherical waves in a cone closed at its apex |
-| `square-flute/naf_model.py`, `octagonal-flute/flute_model.py` | jet: a neck the jet drives, the bore below, a closed stub above |
+| `square-flute/naf_model.rs`, `octagonal-flute/flute_model.rs` | jet: a neck the jet drives, the bore below, a closed stub above |
 
 **It gives the same bits, not close ones.** The answers are hole positions and widths in committed cut files, and a port that moved one by 1e-12 mm would rewrite all of them. So `src/models.rs` is each model's arithmetic in the same order, and `src/py.rs` reproduces Python 3.9's numbers, measured against CPython on 200,000 random cases:
 
@@ -105,13 +105,7 @@ This is not the engine in `src/lib.rs`, which is general and agrees with the mod
 
 **The time:** `tools/read_cut_files.py` went from 27 s to 2 s and `tools/export_models.py` from 25 s to 1 s. Practice-chanters' drawings reproduce in 8 s instead of 17, square-flute's in 1 s instead of 15.
 
-**For the flutes the Python is still there, and still decides.** Without the library (bore-tmm not checked out, not built, or `BORE_TMM_PURE=1`) each flute model runs its own Python, as before, and every file comes out the same. The first call in a process runs both and compares them bit for bit. If they ever differ, because a model was edited without its port or the library is older than its source, it says so on stderr and uses the Python from then on. A stale build costs time, never a wrong cut file. `tools/check_fast.py` is the gate:
-
-```
-FAST MATCH: 216 soundings in 2 models, bit for bit
-```
-
-It compares every model on its own designs, then on the same designs with every hole moved and resized at random, and on calls that find no resonance and must raise the same error. When it still covered all five models, a coefficient changed from 0.62 to 0.6201 in the Rust alone failed 465 of 504, and each generator warned, fell back to its Python and still reproduced its files. The three chanter models left it on 2026-11-07: they are Rust now, with no Python to compare, and their generators' cut files and pages came out byte for byte the same when they moved.
+**The Python is gone, and so is the check against it.** While the flute models were still Python they called this loop through a small C interface, compared the two bit for bit on their first call, and fell back to their own Python if the two ever differed. A script in `tools/`, `check_fast`, was the gate, `FAST MATCH: 216 soundings in 2 models, bit for bit`: every model on its own designs, then with every hole moved and resized at random, and on calls that find no resonance and must raise the same error. When it still covered all five models, a coefficient changed from 0.62 to 0.6201 in the Rust alone failed 465 of 504. With every model in Rust there was nothing left to compare, so it was retired on 2026-11-07, with the C interface and the loader beside it. What holds the port now is that every generator's cut files and pages came out byte for byte the same when it moved, and that each repository's reproduction gate keeps them so.
 
 ## Predictions
 
@@ -173,22 +167,21 @@ $B compare bores/cut/octagonal-flute.json E4 flute-E4.wav --to=3000 \
 
 ## The gate
 
-`lasermade-tools/all-gates.sh` builds this library before its lanes start, then runs lane T, five verdicts:
+`lasermade-tools/all-gates.sh` builds this library before its lanes start, then runs lane T, four verdicts:
 
 - `cargo test`: the textbook checks and the rig's analysis.
 - **The bores read now are the bores committed** in `bores/cut/` and `bores/predict/`. A generator that moves a hole shows up as a diff even before it goes out of tune.
 - **Every drawn bore is in tune**, `TUNING OK`, within 5 cents or its stated tolerance. Moving one octagonal-flute hole by 3 mm fails it at −7.9 cents.
 - **The engine agrees with every designing model**, `MODEL MATCH`, to 0.01 cents.
-- **The Rust port gives the models' own bits**, `FAST MATCH`.
 
-Everything is read into a temporary directory. When a generator changes on purpose, rerun `python3 tools/read_cut_files.py` and commit the bores with the change. The chanters are read through their own Rust: `practice-chanters/target/release/chanter_bores`, `ghb_chanter --bores` and `uilleann_chanter --bores`, which those repositories build.
+Everything is read into a temporary directory. When a generator changes on purpose, rerun `python3 tools/read_cut_files.py` and commit the bores with the change. Every model is read through its own Rust, which those repositories build: `naf_model --bores` and `flute_model --bores` for the flutes, `practice-chanters/target/release/chanter_bores`, `ghb_chanter --bores` and `uilleann_chanter --bores` for the chanters.
 
 ## Files
 
 - `Cargo.toml`, `Cargo.lock`: the crate and its pinned dependencies (serde, serde_json).
-- `src/lib.rs`: the engine. `src/models.rs`: the five design models' inner loop, and `src/py.rs`, Python's numbers. `python/tmm_fast.py`: what loads the jet for the flute models. `src/measure.rs`: the sweep, WAV in and out, the FFT and the peak analysis. `src/main.rs`: the command line.
+- `src/lib.rs`: the engine. `src/models.rs`: the five design models' inner loop, and `src/py.rs`, Python's numbers. `src/measure.rs`: the sweep, WAV in and out, the FFT and the peak analysis. `src/main.rs`: the command line.
 - `tests/physics.rs`: the textbook checks. `tests/measure.rs`: the rig's analysis through a coloured loudspeaker, and WAV round trips.
-- `tools/read_cut_files.py`: the bores as drawn. `tools/svgparts.py`: the shapes in a cut file. `tools/export_models.py`: the designing models' own bores. `tools/check_fast.py`: the port against the flute models.
+- `tools/read_cut_files.py`: the bores as drawn. `tools/svgparts.py`: the shapes in a cut file. `tools/export_models.py`: the designing models' own bores.
 - `bores/cut/`, `bores/predict/`, `bores/models/`: what those write. `bores/rig/reference-cavity.json`: the rig's reference.
 - `.doc-audit-ignore`, `.doc-audit-generated`: the sibling repositories' files this page names, and the generated folders.
 - `index.html`: this page, built from `README.md` by lasermade-tools' md2html.

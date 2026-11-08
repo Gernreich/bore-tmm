@@ -105,10 +105,10 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <p><strong><a href="https://gernreich.github.io/" target="_blank" rel="noopener">← All projects</a></strong></p>
 <p><strong><a href="https://github.com/Gernreich/bore-tmm" target="_blank" rel="noopener">Read the README</a></strong></p>
 <p>What a described bore plays. Describe a wind instrument's bore from its driven end down: its lengths of cylinder and cone, the tone holes along it, how it ends and what drives it. bore-tmm then gives each fingering's note, how far that note is from where it should be, and every register the fingering has.</p>
-<p>It is a transfer-matrix model in Rust. The instrument repositories each carry their own copy of the same physics to design their instruments, the flutes' in Python and the chanters' in Rust (Python until 2026-11-07):</p>
+<p>It is a transfer-matrix model in Rust. The instrument repositories each carry their own copy of the same physics to design their instruments, all in Rust since 2026-11-07 (Python until then):</p>
 <ul>
-<li><a href="https://github.com/Gernreich/square-flute/blob/main/naf_model.py" target="_blank" rel="noopener">naf_model.py</a>, in square-flute</li>
-<li><a href="https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.py" target="_blank" rel="noopener">flute_model.py</a>, in octagonal-flute</li>
+<li><a href="https://github.com/Gernreich/square-flute/blob/main/naf_model.rs" target="_blank" rel="noopener">naf_model.rs</a>, in square-flute</li>
+<li><a href="https://github.com/Gernreich/octagonal-flute/blob/main/flute_model.rs" target="_blank" rel="noopener">flute_model.rs</a>, in octagonal-flute</li>
 <li><a href="https://github.com/Gernreich/practice-chanters/blob/main/chanter_model.rs" target="_blank" rel="noopener">chanter_model.rs</a> and <a href="https://github.com/Gernreich/practice-chanters/blob/main/standard_chanter.rs" target="_blank" rel="noopener">standard_chanter.rs</a>, in practice-chanters</li>
 <li><a href="https://github.com/Gernreich/ghb-chanter/blob/main/ghb_chanter.rs" target="_blank" rel="noopener">ghb_chanter.rs</a>, in ghb-chanter</li>
 </ul>
@@ -163,7 +163,7 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
 <li><strong>The GHB chanter's loss radius</strong> was half the others' (the cone's diameter / 4) until 2026-11-05, when <code>ghb_chanter.py</code> (Rust since 2026-11-07) was corrected to the radius. That moved the model's reference notes 2.7 to 6.0 cents flat, but the solved hole sizes by at most 0.017 mm and the vents by 0.053 mm, less than the kerf.</li>
 </ul>
 <h2 id="the-design-models-inner-loop-in-rust">The design models' inner loop, in Rust</h2>
-<p>The five models that design the chanters and flutes each find a note by scanning a frequency range for a rising zero of the bore's admittance, or the jet's reactance, and narrowing it down. A design does that a few thousand times, which made the models most of the time <code>all-gates.sh</code> spent in lanes D and T. Since 2026-11-07 that loop, each model's <code>sounding()</code>, also exists in Rust in <code>src/models.rs</code>. The chanters' generators moved to Rust the same day and call it directly; the two flute models, still Python, call it through <code>python/tmm_fast.py</code> when this repository is checked out beside them and built.</p>
+<p>The five models that design the chanters and flutes each find a note by scanning a frequency range for a rising zero of the bore's admittance, or the jet's reactance, and narrowing it down. A design does that a few thousand times, which made the models most of the time <code>all-gates.sh</code> spent in lanes D and T. Since 2026-11-07 that loop, each model's <code>sounding()</code>, is Rust, in <code>src/models.rs</code>, and every model calls it directly: the chanters' generators moved to Rust that day, and the two flute models later the same day.</p>
 <div class="tw">
 <table>
 <thead>
@@ -182,7 +182,7 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
 <td>cone: spherical waves in a cone closed at its apex</td>
 </tr>
 <tr>
-<td><code>square-flute/naf_model.py</code>, <code>octagonal-flute/flute_model.py</code></td>
+<td><code>square-flute/naf_model.rs</code>, <code>octagonal-flute/flute_model.rs</code></td>
 <td>jet: a neck the jet drives, the bore below, a closed stub above</td>
 </tr>
 </tbody>
@@ -196,9 +196,7 @@ $B compare BORE.json NOTE recording.wav --ref=cavity.wav --ref-bore=bores/rig/re
 </ul>
 <p>This is not the engine in <code>src/lib.rs</code>, which is general and agrees with the models to 0.01 cents, as near as a different formulation can.</p>
 <p><strong>The time:</strong> <code>tools/read_cut_files.py</code> went from 27 s to 2 s and <code>tools/export_models.py</code> from 25 s to 1 s. Practice-chanters' drawings reproduce in 8 s instead of 17, square-flute's in 1 s instead of 15.</p>
-<p><strong>For the flutes the Python is still there, and still decides.</strong> Without the library (bore-tmm not checked out, not built, or <code>BORE_TMM_PURE=1</code>) each flute model runs its own Python, as before, and every file comes out the same. The first call in a process runs both and compares them bit for bit. If they ever differ, because a model was edited without its port or the library is older than its source, it says so on stderr and uses the Python from then on. A stale build costs time, never a wrong cut file. <code>tools/check_fast.py</code> is the gate:</p>
-<pre><code>FAST MATCH: 216 soundings in 2 models, bit for bit</code></pre>
-<p>It compares every model on its own designs, then on the same designs with every hole moved and resized at random, and on calls that find no resonance and must raise the same error. When it still covered all five models, a coefficient changed from 0.62 to 0.6201 in the Rust alone failed 465 of 504, and each generator warned, fell back to its Python and still reproduced its files. The three chanter models left it on 2026-11-07: they are Rust now, with no Python to compare, and their generators' cut files and pages came out byte for byte the same when they moved.</p>
+<p><strong>The Python is gone, and so is the check against it.</strong> While the flute models were still Python they called this loop through a small C interface, compared the two bit for bit on their first call, and fell back to their own Python if the two ever differed. A script in <code>tools/</code>, <code>check_fast</code>, was the gate, <code>FAST MATCH: 216 soundings in 2 models, bit for bit</code>: every model on its own designs, then with every hole moved and resized at random, and on calls that find no resonance and must raise the same error. When it still covered all five models, a coefficient changed from 0.62 to 0.6201 in the Rust alone failed 465 of 504. With every model in Rust there was nothing left to compare, so it was retired on 2026-11-07, with the C interface and the loader beside it. What holds the port now is that every generator's cut files and pages came out byte for byte the same when it moved, and that each repository's reproduction gate keeps them so.</p>
 <h2 id="predictions">Predictions</h2>
 <p><code>bores/predict/</code> holds the bores whose pitch is the open question rather than the check, so the tuning gate does not judge them.</p>
 <p><strong>The three-turn trumpet</strong> is the 24-ring legacy mouthpiece, 1096 mm of 10 mm square bore (the length <code>bore_split.py</code> reports for its walk), and the 17-ring bell. Every ring is a short cylinder of its aperture's area, read off the cut files. Its one measured note is F4, 349.2 Hz, and with nothing calibrated the model has a resonance at <strong>350.1 Hz, 4.6 cents away</strong>:</p>
@@ -237,21 +235,20 @@ $B compare bores/cut/octagonal-flute.json E4 flute-E4.wav --to=3000 \
     --ref=cavity.wav --ref-bore=bores/rig/reference-cavity.json</code></pre>
 <p><code>compare</code> lists each model resonance beside the measured one, in cents. <code>simulate</code> writes the recording the rig would make of a model. On that, with the loudspeaker deliberately coloured (a 150Hz high-pass and a 6dB bump at 900Hz) and noise added, the reference recovers every resonance of the octagonal flute's E4 fingering within 5 cents, and <code>cargo test</code> checks it does. <strong>The rig itself has not been built.</strong> Only the analysis is tested, and only on simulated recordings.</p>
 <h2 id="the-gate">The gate</h2>
-<p><code>lasermade-tools/all-gates.sh</code> builds this library before its lanes start, then runs lane T, five verdicts:</p>
+<p><code>lasermade-tools/all-gates.sh</code> builds this library before its lanes start, then runs lane T, four verdicts:</p>
 <ul>
 <li><code>cargo test</code>: the textbook checks and the rig's analysis.</li>
 <li><strong>The bores read now are the bores committed</strong> in <code>bores/cut/</code> and <code>bores/predict/</code>. A generator that moves a hole shows up as a diff even before it goes out of tune.</li>
 <li><strong>Every drawn bore is in tune</strong>, <code>TUNING OK</code>, within 5 cents or its stated tolerance. Moving one octagonal-flute hole by 3 mm fails it at −7.9 cents.</li>
 <li><strong>The engine agrees with every designing model</strong>, <code>MODEL MATCH</code>, to 0.01 cents.</li>
-<li><strong>The Rust port gives the models' own bits</strong>, <code>FAST MATCH</code>.</li>
 </ul>
-<p>Everything is read into a temporary directory. When a generator changes on purpose, rerun <code>python3 tools/read_cut_files.py</code> and commit the bores with the change. The chanters are read through their own Rust: <code>practice-chanters/target/release/chanter_bores</code>, <code>ghb_chanter --bores</code> and <code>uilleann_chanter --bores</code>, which those repositories build.</p>
+<p>Everything is read into a temporary directory. When a generator changes on purpose, rerun <code>python3 tools/read_cut_files.py</code> and commit the bores with the change. Every model is read through its own Rust, which those repositories build: <code>naf_model --bores</code> and <code>flute_model --bores</code> for the flutes, <code>practice-chanters/target/release/chanter_bores</code>, <code>ghb_chanter --bores</code> and <code>uilleann_chanter --bores</code> for the chanters.</p>
 <h2 id="files">Files</h2>
 <ul>
 <li><code>Cargo.toml</code>, <code>Cargo.lock</code>: the crate and its pinned dependencies (serde, serde_json).</li>
-<li><code>src/lib.rs</code>: the engine. <code>src/models.rs</code>: the five design models' inner loop, and <code>src/py.rs</code>, Python's numbers. <code>python/tmm_fast.py</code>: what loads the jet for the flute models. <code>src/measure.rs</code>: the sweep, WAV in and out, the FFT and the peak analysis. <code>src/main.rs</code>: the command line.</li>
+<li><code>src/lib.rs</code>: the engine. <code>src/models.rs</code>: the five design models' inner loop, and <code>src/py.rs</code>, Python's numbers. <code>src/measure.rs</code>: the sweep, WAV in and out, the FFT and the peak analysis. <code>src/main.rs</code>: the command line.</li>
 <li><code>tests/physics.rs</code>: the textbook checks. <code>tests/measure.rs</code>: the rig's analysis through a coloured loudspeaker, and WAV round trips.</li>
-<li><code>tools/read_cut_files.py</code>: the bores as drawn. <code>tools/svgparts.py</code>: the shapes in a cut file. <code>tools/export_models.py</code>: the designing models' own bores. <code>tools/check_fast.py</code>: the port against the flute models.</li>
+<li><code>tools/read_cut_files.py</code>: the bores as drawn. <code>tools/svgparts.py</code>: the shapes in a cut file. <code>tools/export_models.py</code>: the designing models' own bores.</li>
 <li><code>bores/cut/</code>, <code>bores/predict/</code>, <code>bores/models/</code>: what those write. <code>bores/rig/reference-cavity.json</code>: the rig's reference.</li>
 <li><code>.doc-audit-ignore</code>, <code>.doc-audit-generated</code>: the sibling repositories' files this page names, and the generated folders.</li>
 <li><code>index.html</code>: this page, built from <code>README.md</code> by lasermade-tools' md2html.</li>

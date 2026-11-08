@@ -1,6 +1,6 @@
 {
  "name": "octagonal flute in D, as cut",
- "source": "octagonal-flute/cut-files/octagonal-flute-D4-sheet1-cut-files.svg: embouchure, holes, cork and foot lines measured, kerf 0.13; section, wall, lip cover and mouth from flute_model.py",
+ "source": "octagonal-flute/cut-files/octagonal-flute-D4-sheet1-cut-files.svg: embouchure, holes, cork and foot lines measured, kerf 0.13; section, wall, lip cover and mouth from flute_model.rs",
  "temp_c": 25.0,
  "drive": {
   "kind": "jet",

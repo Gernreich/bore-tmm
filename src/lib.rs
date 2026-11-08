@@ -7,7 +7,7 @@
 //! where the reactance the jet drives rises through zero).
 //!
 //! The physics is the four design models' in the LaserMadeMusic repositories
-//! (square-flute/naf_model.py, octagonal-flute/flute_model.py,
+//! (square-flute/naf_model.rs, octagonal-flute/flute_model.rs,
 //! practice-chanters/chanter_model.rs, ghb-chanter/ghb_chanter.rs), in one
 //! place: Benade's wall loss on a loss radius, plane waves in a cylinder,
 //! spherical waves in a cone, Keefe's (1990) tone hole, a flanged or

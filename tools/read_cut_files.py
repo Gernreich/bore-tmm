@@ -83,8 +83,7 @@ def along(part):
 # --- the octagonal flute -----------------------------------------------------------
 
 def octagonal_flute():
-    use('octagonal-flute')
-    import flute_model as M
+    m = rust('octagonal-flute', 'flute_model', '--bores')['reader']
     f = os.path.join(GIT, 'octagonal-flute', 'cut-files', 'octagonal-flute-D4-sheet1-cut-files.svg')
     shapes, desc = S.shapes(f)
     kerf = S.kerf_of(desc)
@@ -101,35 +100,32 @@ def octagonal_flute():
     foot = max(b.centre[ax] for b in blues)
     cuts.sort(key=lambda s: s.centre[ax])
     emb, holes = cuts[0], cuts[1:]
-    if len(holes) != len(M.HOLES):
-        raise Unreadable(f'{rel(f)}: {len(holes)} finger holes on the top wall, not {len(M.HOLES)}')
+    if len(holes) != len(m['holes']):
+        raise Unreadable(f'{rel(f)}: {len(holes)} finger holes on the top wall, not {len(m["holes"])}')
     ec = emb.centre[ax]
     # foot-most first, as the model numbers them
     holes.sort(key=lambda s: -s.centre[ax])
-    b = M.Bore()
     write('octagonal-flute', {
         'name': 'octagonal flute in D, as cut',
         'source': (f'{rel(f)}: embouchure, holes, cork and foot lines measured, kerf {kerf}; '
-                   f'section, wall, lip cover and mouth from flute_model.py'),
-        'temp_c': M.T_C,
-        'drive': {'kind': 'jet', 'area_mm2': M.COVER * emb.cut_area(kerf),
-                  'chimney_mm': M.CHIMNEY, 'mouth': M.MOUTH, 'stub_mm': ec - cork},
-        'bore': [{'len_mm': foot - ec, 'd_mm': 2000 * b.a, 'loss_ratio': b.rh / b.a}],
+                   f'section, wall, lip cover and mouth from flute_model.rs'),
+        'temp_c': m['temp_c'],
+        'drive': {'kind': 'jet', 'area_mm2': m['cover'] * emb.cut_area(kerf),
+                  'chimney_mm': m['chimney_mm'], 'mouth': m['mouth'], 'stub_mm': ec - cork},
+        'bore': [{'len_mm': foot - ec, 'd_mm': m['d_mm'], 'loss_ratio': m['loss_ratio']}],
         'end': 'unflanged',
-        'holes': [{'name': M.HOLES[i], 'at_mm': h.centre[ax] - ec,
-                   'd_mm': S.eq_d(h.cut_area(kerf)), 'chimney_mm': M.T}
+        'holes': [{'name': m['holes'][i], 'at_mm': h.centre[ax] - ec,
+                   'd_mm': S.eq_d(h.cut_area(kerf)), 'chimney_mm': m['wall_mm']}
                   for i, h in enumerate(holes)],
-        'notes': [{'name': M.NOTES[n], 'hz': M.TARGETS[n], 'open': M.HOLES[:n], 'span': 1.4}
-                  for n in range(7)],
+        'notes': [{'name': nm, 'hz': hz, 'open': m['holes'][:n], 'span': 1.4}
+                  for n, (nm, hz) in enumerate(m['notes'])],
     })
 
 
 # --- the square-bore flutes -----------------------------------------------------
 
 def square_flutes():
-    use('square-flute')
-    import naf_model as M
-    import square_flute as SF
+    m = rust('square-flute', 'naf_model', '--bores')['reader']
     d = os.path.join(GIT, 'square-flute', 'cut-files')
     for name in sorted(os.listdir(d)):
         files = [x for x in os.listdir(os.path.join(d, name)) if x.endswith('.svg')]
@@ -139,8 +135,8 @@ def square_flutes():
         shapes, desc = S.shapes(f)
         kerf = S.kerf_of(desc)
         variant = name[:-5] if name.endswith('-flat') else name
-        w, dd, wall, how = [(vw, vd, vwall, vhow) for vn, vw, vd, vwall, vhow in M.VARIANTS
-                            if vn == variant][0]
+        v = m['variants'][variant]
+        wall = v['wall']
         # the top plate: the part with the five finger holes and the window
         circles = [s for s in shapes if isinstance(s, S.Circle) and s.colour == ORANGE]
         tops = [p for p in parts_of(shapes)
@@ -172,23 +168,22 @@ def square_flutes():
         wl, ww = span[ax] + kerf, span[1 - ax] + kerf
         holes.sort(key=lambda h: -sign * h.centre[ax])
         names = [f'h{i + 1}' for i in range(5)]
-        b = M.Bore(w, dd)
         write('square-flute-' + name, {
-            'name': f'square-bore flute {name}, as cut, foot trimmed {M.FOOT_SPARE:g}mm',
+            'name': f'square-bore flute {name}, as cut, foot trimmed {m["foot_spare"]:g}mm',
             'source': (f'{rel(f)}: window, holes and plate length measured, kerf {kerf}; '
-                       f'section, wall and the foot\'s {M.FOOT_SPARE:g}mm to trim from '
-                       f'naf_model.py'),
-            'temp_c': M.T_C,
-            'drive': {'kind': 'jet', 'area_mm2': ww * wl, 'chimney_mm': M.WINDOW_T,
-                      'mouth': M.MOUTH, 'stub_mm': wl / 2},
-            'bore': [{'len_mm': drawn - M.FOOT_SPARE, 'd_mm': 2000 * b.a,
-                      'loss_ratio': b.rh / b.a}],
+                       f'section, wall and the foot\'s {m["foot_spare"]:g}mm to trim from '
+                       f'naf_model.rs'),
+            'temp_c': m['temp_c'],
+            'drive': {'kind': 'jet', 'area_mm2': ww * wl, 'chimney_mm': m['window_t'],
+                      'mouth': m['mouth'], 'stub_mm': wl / 2},
+            'bore': [{'len_mm': drawn - m['foot_spare'], 'd_mm': v['d_mm'],
+                      'loss_ratio': v['loss_ratio']}],
             'end': 'unflanged',
             'holes': [{'name': names[i], 'at_mm': sign * (h.centre[ax] - wc),
                        'd_mm': 2 * h.r + kerf, 'chimney_mm': wall}
                       for i, h in enumerate(holes)],
-            'notes': [{'name': M.NOTES[n], 'hz': M.TARGETS[n], 'open': names[:n], 'span': 1.4}
-                      for n in range(6)],
+            'notes': [{'name': nm, 'hz': hz, 'open': names[:n], 'span': 1.4}
+                      for n, (nm, hz) in enumerate(m['notes'])],
         })
 
 

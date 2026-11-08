@@ -1,6 +1,6 @@
 {
  "name": "square-bore flute box-square-3, as cut, foot trimmed 15mm",
- "source": "square-flute/cut-files/box-square-3/square-flute-A4-box-square-3-sheet1-cut-files.svg: window, holes and plate length measured, kerf 0.13; section, wall and the foot's 15mm to trim from naf_model.py",
+ "source": "square-flute/cut-files/box-square-3/square-flute-A4-box-square-3-sheet1-cut-files.svg: window, holes and plate length measured, kerf 0.13; section, wall and the foot's 15mm to trim from naf_model.rs",
  "temp_c": 25.0,
  "drive": {
   "kind": "jet",

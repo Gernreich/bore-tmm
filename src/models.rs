@@ -13,17 +13,14 @@
 //!         a closed tube for the reed, then bore and holes, a flanged end
 //!   cone  ghb-chanter's ghb_chanter.rs: spherical waves in a cone closed
 //!         at its apex, holes and vents along it
-//!   jet   square-flute/naf_model.py and octagonal-flute/flute_model.py:
+//!   jet   square-flute/naf_model.rs and octagonal-flute/flute_model.rs:
 //!         a jet driving a neck, the bore below it, a closed stub above
 //!
-//! The chanters are Rust since 2026-11-07 and call the reed and cone
-//! kernels directly; until then they were Python, which these gave the same
-//! bits as, and their generators' cut files came out byte for byte the same
-//! when they moved. The two flute models are still Python: each hands over
-//! only what does not depend on frequency, computed by its own expressions
-//! (hole radii, segment lengths), and keeps its pure-Python path.
-//! python/tmm_fast.py loads the jet through the C interface below, and
-//! tools/check_fast.py compares the two paths bit for bit.
+//! Every model is Rust since 2026-11-07 and calls these kernels directly;
+//! until then they were Python, which these gave the same bits as, and
+//! every generator's cut files came out byte for byte the same when it
+//! moved. tools/check_fast.py compared the two paths, through a C interface
+//! here, until the last Python model went.
 //!
 //! This is NOT the bore model in lib.rs. That one is general (cones,
 //! segments, any bore) and agrees with these models to 0.01 cents, which is
@@ -277,31 +274,4 @@ impl Jet<'_> {
             + J1 * w * f(rho) * f(self.leff) / f(self.neck_area);
         (neck + zb).imag()
     }
-}
-
-// --- the C interface, for python/tmm_fast.py: the jet, for the two flutes ----
-
-unsafe fn sl<'a, T>(p: *const T, n: usize) -> &'a [T] {
-    if n == 0 {
-        &[]
-    } else {
-        std::slice::from_raw_parts(p, n)
-    }
-}
-
-/// Jet: the resonance nearest `near` (sounding), or with nscan < 0 the
-/// reactance at `near` itself (for tests).
-#[no_mangle]
-pub unsafe extern "C" fn tmm_jet(
-    c: f64, rho: f64, rh: f64, area: f64, a: f64,
-    n: usize, kind: *const u8, len: *const f64, r: *const f64, open: *const u8, t: f64,
-    stub: f64, neck_area: f64, neck_a: f64, leff: f64,
-    near: f64, span: f64, nscan: i64, bis: i64,
-) -> f64 {
-    let m = Jet {
-        c, rho, rh, area, a,
-        kind: sl(kind, n), len: sl(len, n), r: sl(r, n), open: sl(open, n), t,
-        stub, neck_area, neck_a, leff,
-    };
-    if nscan < 0 { m.y(near) } else { scan(near, span, nscan, bis, |x| m.y(x)) }
 }
