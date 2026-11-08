@@ -1,6 +1,6 @@
 {
  "name": "three-turn trumpet, as built: the 24-ring legacy mouthpiece",
- "source": "mouthpiece-round.py --layout=legacy; 1096mm of 10mm square bore, bore_split.py on tools/walks/coil-3t.txt with --straight=30; trumpet-elbows-allowed/parts/bell/cut-files/bell-round10-153mm-17rings-x3-rim86-cut-files.svg",
+ "source": "mouthpiece-round --layout=legacy; 1096mm of 10mm square bore, bore_split.py on tools/walks/coil-3t.txt with --straight=30; trumpet-elbows-allowed/parts/bell/cut-files/bell-round10-153mm-17rings-x3-rim86-cut-files.svg",
  "drive": {
   "kind": "reed"
  },

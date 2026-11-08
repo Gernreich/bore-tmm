@@ -57,7 +57,7 @@ Positions are in mm down the bore from its driven end. A cone segment takes `d1_
 
 ## What the drawings play
 
-`tools/read_cut_files.py` reads every instrument's bore from what its generator draws, and writes them to `bores/cut/`:
+`tools/read_cut_files.rs` reads every instrument's bore from what its generator draws, and writes them to `bores/cut/`:
 
 - **The flutes are read off their SVGs.** The octagonal flute's top wall carries the embouchure, the six holes, and two engraved lines for the cork's face and the foot. The square flutes' top plate carries the window and five holes, and the foot is the plate's end less the 15 mm cut long to trim. Each hole's size is its cut shape plus the kerf the file says it was drawn for.
 - **The chanters are read off the parts their sheets are drawn from**, because a sheet cannot give a chanter's bore. The plate chanter's 131 plates are packed by size, not in stack order, and a strip's holes do not say which end is the reed's. The repositories' `.repro` gates hold those parts equal to the committed SVGs.
@@ -74,7 +74,7 @@ Every note is within 0.3 cents of its model except one. The 8-sided plate chante
 
 ## Agreement with the designing models
 
-`tools/export_models.py` writes each model's own design to `bores/models/`, with that model's prediction for every note. `check --compare` then reads:
+`tools/export_models.rs` writes each model's own design to `bores/models/`, with that model's prediction for every note. `check --compare` then reads:
 
 ```
 MODEL MATCH: 49 notes, worst 0.00000 cents from the designing model
@@ -103,7 +103,7 @@ The five models that design the chanters and flutes each find a note by scanning
 
 This is not the engine in `src/lib.rs`, which is general and agrees with the models to 0.01 cents, as near as a different formulation can.
 
-**The time:** `tools/read_cut_files.py` went from 27 s to 2 s and `tools/export_models.py` from 25 s to 1 s. Practice-chanters' drawings reproduce in 8 s instead of 17, square-flute's in 1 s instead of 15.
+**The time:** `tools/read_cut_files` went from 27 s to 2 s and `tools/export_models` from 25 s to 1 s (both Python then; Rust since 2026-11-07). Practice-chanters' drawings reproduce in 8 s instead of 17, square-flute's in 1 s instead of 15.
 
 **The Python is gone, and so is the check against it.** While the flute models were still Python they called this loop through a small C interface, compared the two bit for bit on their first call, and fell back to their own Python if the two ever differed. A script in `tools/`, `check_fast`, was the gate, `FAST MATCH: 216 soundings in 2 models, bit for bit`: every model on its own designs, then with every hole moved and resized at random, and on calls that find no resonance and must raise the same error. When it still covered all five models, a coefficient changed from 0.62 to 0.6201 in the Rust alone failed 465 of 504. With every model in Rust there was nothing left to compare, so it was retired on 2026-11-07, with the C interface and the loader beside it. What holds the port now is that every generator's cut files and pages came out byte for byte the same when it moved, and that each repository's reproduction gate keeps them so.
 
@@ -174,14 +174,14 @@ $B compare bores/cut/octagonal-flute.json E4 flute-E4.wav --to=3000 \
 - **Every drawn bore is in tune**, `TUNING OK`, within 5 cents or its stated tolerance. Moving one octagonal-flute hole by 3 mm fails it at −7.9 cents.
 - **The engine agrees with every designing model**, `MODEL MATCH`, to 0.01 cents.
 
-Everything is read into a temporary directory. When a generator changes on purpose, rerun `python3 tools/read_cut_files.py` and commit the bores with the change. Every model is read through its own Rust, which those repositories build: `naf_model --bores` and `flute_model --bores` for the flutes, `practice-chanters/target/release/chanter_bores`, `ghb_chanter --bores` and `uilleann_chanter --bores` for the chanters.
+Everything is read into a temporary directory. When a generator changes on purpose, rerun `./target/release/read_cut_files` and commit the bores with the change. Every model is read through its own Rust, which those repositories build: `naf_model --bores` and `flute_model --bores` for the flutes, `practice-chanters/target/release/chanter_bores`, `ghb_chanter --bores` and `uilleann_chanter --bores` for the chanters.
 
 ## Files
 
 - `Cargo.toml`, `Cargo.lock`: the crate and its pinned dependencies (serde, serde_json).
 - `src/lib.rs`: the engine. `src/models.rs`: the five design models' inner loop, and `src/py.rs`, Python's numbers. `src/measure.rs`: the sweep, WAV in and out, the FFT and the peak analysis. `src/main.rs`: the command line.
 - `tests/physics.rs`: the textbook checks. `tests/measure.rs`: the rig's analysis through a coloured loudspeaker, and WAV round trips.
-- `tools/read_cut_files.py`: the bores as drawn. `tools/svgparts.py`: the shapes in a cut file. `tools/export_models.py`: the designing models' own bores.
+- `tools/read_cut_files.rs`: the bores as drawn. `tools/svgparts.rs`: the shapes in a cut file. `tools/export_models.rs`: the designing models' own bores. Rust since 2026-11-07 (Python until then; the move changed no byte of any bore). The trumpet's walk length still comes from `bore_split.py`.
 - `bores/cut/`, `bores/predict/`, `bores/models/`: what those write. `bores/rig/reference-cavity.json`: the rig's reference.
 - `.doc-audit-ignore`, `.doc-audit-generated`: the sibling repositories' files this page names, and the generated folders.
 - `index.html`: this page, built from `README.md` by lasermade-tools' md2html.
