@@ -181,7 +181,7 @@ Everything is read into a temporary directory. When a generator changes on purpo
 - `Cargo.toml`, `Cargo.lock`: the crate and its pinned dependencies (serde, serde_json).
 - `src/lib.rs`: the engine. `src/models.rs`: the five design models' inner loop, and `src/py.rs`, Python's numbers. `src/measure.rs`: the sweep, WAV in and out, the FFT and the peak analysis. `src/main.rs`: the command line.
 - `tests/physics.rs`: the textbook checks. `tests/measure.rs`: the rig's analysis through a coloured loudspeaker, and WAV round trips.
-- `tools/read_cut_files.rs`: the bores as drawn. `tools/svgparts.rs`: the shapes in a cut file. `tools/export_models.rs`: the designing models' own bores. Rust since 2026-11-07 (Python until then; the move changed no byte of any bore). The trumpet's walk length still comes from `bore_split.py`.
+- `tools/read_cut_files.rs`: the bores as drawn. `tools/svgparts.rs`: the shapes in a cut file. `tools/export_models.rs`: the designing models' own bores. `tools/common.rs`: what the two programs share. Rust since 2026-11-07 (Python until then; the move changed no byte of any bore). The trumpet's walk length still comes from `bore_split.py`.
 - `bores/cut/`, `bores/predict/`, `bores/models/`: what those write. `bores/rig/reference-cavity.json`: the rig's reference.
 - `.doc-audit-ignore`, `.doc-audit-generated`: the sibling repositories' files this page names, and the generated folders.
 - `index.html`: this page, built from `README.md` by lasermade-tools' md2html.
