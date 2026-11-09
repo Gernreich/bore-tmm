@@ -1,0 +1,110 @@
+{
+ "name": "square-bore flute box-square-3-E4-590, as cut, foot trimmed 15mm",
+ "source": "square-flute/cut-files/box-square-3-E4-590/square-flute-E4-box-square-3-590-sheet1-cut-files.svg: window, holes and plate length measured, kerf 0.13; section, wall and the foot's 15mm to trim from naf_model.rs",
+ "temp_c": 25.0,
+ "drive": {
+  "kind": "jet",
+  "area_mm2": 137.90700000000007,
+  "chimney_mm": 3.0,
+  "mouth": 1.0,
+  "stub_mm": 3.500000000000002
+ },
+ "bore": [
+  {
+   "len_mm": 479.065,
+   "d_mm": 22.23,
+   "loss_ratio": 0.8862269254527579
+  }
+ ],
+ "end": "unflanged",
+ "holes": [
+  {
+   "name": "h1",
+   "at_mm": 347.91700000000003,
+   "d_mm": 6.828,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "h2",
+   "at_mm": 316.91700000000003,
+   "d_mm": 8.0,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "h3",
+   "at_mm": 285.91700000000003,
+   "d_mm": 10.770000000000001,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "h4",
+   "at_mm": 214.84500000000003,
+   "d_mm": 8.0,
+   "chimney_mm": 3.0
+  },
+  {
+   "name": "h5",
+   "at_mm": 183.84500000000003,
+   "d_mm": 6.766,
+   "chimney_mm": 3.0
+  }
+ ],
+ "notes": [
+  {
+   "name": "E4",
+   "hz": 329.0029159896218,
+   "open": [],
+   "span": 1.4
+  },
+  {
+   "name": "G4",
+   "hz": 391.2526085515007,
+   "open": [
+    "h1"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "A4",
+   "hz": 439.1662044011028,
+   "open": [
+    "h1",
+    "h2"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "B4",
+   "hz": 492.94739734031464,
+   "open": [
+    "h1",
+    "h2",
+    "h3"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "D5",
+   "hz": 586.2165522391756,
+   "open": [
+    "h1",
+    "h2",
+    "h3",
+    "h4"
+   ],
+   "span": 1.4
+  },
+  {
+   "name": "E5",
+   "hz": 658.0058319792436,
+   "open": [
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5"
+   ],
+   "span": 1.4
+  }
+ ]
+}

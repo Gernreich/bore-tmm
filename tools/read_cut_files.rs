@@ -365,7 +365,8 @@ fn square_flutes(cx: &Ctx) -> R {
                         .collect(),
                 ),
             ),
-            ("notes", notes(at(m, "notes"), |n| J::A(hn.iter().take(n).map(|x| s(x)).collect()), 1.4)),
+            // a build in another key carries its own notes (the long builds, 2026-11-08)
+            ("notes", notes(v.get("notes").unwrap_or_else(|| at(m, "notes")), |n| J::A(hn.iter().take(n).map(|x| s(x)).collect()), 1.4)),
         ]);
         cx.write(&format!("square-flute-{name}"), &d, "cut");
     }

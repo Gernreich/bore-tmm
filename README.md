@@ -59,15 +59,15 @@ Positions are in mm down the bore from its driven end. A cone segment takes `d1_
 
 `tools/read_cut_files.rs` reads every instrument's bore from what its generator draws, and writes them to `bores/cut/`:
 
-- **The flutes are read off their SVGs.** The octagonal flute's top wall carries the embouchure, the six holes, and two engraved lines for the cork's face and the foot. The square flutes' top plate carries the window and five holes, and the foot is the plate's end less the 15 mm cut long to trim. Each hole's size is its cut shape plus the kerf the file says it was drawn for.
+- **The flutes are read off their SVGs.** The octagonal flute's top wall carries the embouchure, the six holes, and two engraved lines for the cork's face and the foot. The square flutes' top plate carries the window and five holes, and the foot is the plate's end less the 15 mm cut long to trim. The two long square flutes (2026-11-08) are in F4 and E4, so they carry their own notes. Each hole's size is its cut shape plus the kerf the file says it was drawn for.
 - **The chanters are read off the parts their sheets are drawn from**, because a sheet cannot give a chanter's bore. The plate chanter's 131 plates are packed by size, not in stack order, and a strip's holes do not say which end is the reed's. The repositories' `.repro` gates hold those parts equal to the committed SVGs.
 
 What no part carries comes from the generator, and each reader says so in the file's `source`: the bore's section, the ply, the reed allowance, and the scale.
 
-`check --tol=5` over all fourteen reads:
+`check --tol=5` over all sixteen reads:
 
 ```
-TUNING OK: 106 notes in 14 files, every one within 5 cents or its own stated tolerance
+TUNING OK: 118 notes in 16 files, every one within 5 cents or its own stated tolerance
 ```
 
 Every note is within 0.3 cents of its model except one. The 8-sided plate chanter's low G is 6.7 cents sharp, which `practice_chanters.rs` accepts on purpose: the bore is the nearest whole number of plates, and low G has no hole to tune it. Its file says so, with a 10-cent tolerance.
@@ -77,7 +77,7 @@ Every note is within 0.3 cents of its model except one. The 8-sided plate chante
 `tools/export_models.rs` writes each model's own design to `bores/models/`, with that model's prediction for every note. `check --compare` then reads:
 
 ```
-MODEL MATCH: 49 notes, worst 0.00000 cents from the designing model
+MODEL MATCH: 61 notes, worst 0.00000 cents from the designing model
 ```
 
 **What the comparison found:**
